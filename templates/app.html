@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>HTML</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="{{ url_for('static', filename='app.css')}}" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+
+  
+    <form action="/form" method="POST" class="titol" enctype="multipart/form-data">
+        <h1>Put the CSV file</h1>
+        <br>
+
+        <div class="container">
+            <input type="file" name="file" class="upload"> 
+            <br>
+        </div>
+        <br><br>
+        <input type="submit" value="Submit" id/>
+    </form>
+
+</body>
+</html>

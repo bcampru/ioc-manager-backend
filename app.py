@@ -19,12 +19,15 @@ def form():
         
         else:
                 
-            try:
+            var = 0
 
+            try:
                 file = open("resultat_hash.txt", "w")
                 file2 = open("resultat_ip.txt", "w")
                 csv = request.files['file']
                 df = pd.read_csv(csv)
+
+               
 
                 for a in df.values:
                     if (a[0] == 'SHA-256') or (a[0] == 'MD5') or (a[0] == 'SHA-1'):
@@ -33,13 +36,21 @@ def form():
                     else:
                         a[1] = a[1].replace("[", "")
                         a[1] = a[1].replace("]", "")
-                        file2.write(str(a) + os.linesep)
+                
+                        try:
+                            file2.write(str(a) + os.linesep)
+                        except:
+                            file2.write(str(var + 2) + os.linesep)
+                            
+                    var+=1
 
-                file.close()
-                file2.close()
-                return render_template('confirmar.html')
             except:
-                pass    
+                pass
+
+            file.close()
+            file2.close()
+            return render_template('confirmar.html')
+              
 
         return render_template('app.html')
     

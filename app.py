@@ -5,6 +5,7 @@ import os
 
 
 app = Flask(__name__)
+app.config['MAX_CONTENT_LENGHT']=16*1000*1000
 
 
 @app.route('/form', methods=['POST'])

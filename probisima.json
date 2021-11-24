@@ -1,0 +1,255 @@
+{
+  "comment": "cti prueba de upload IOCs",
+  "indicators": [
+    {
+      "action": "detect",
+      "applied_globally": true,
+      "description": "Test DOMAIN",
+      "expiration": "2021-12-05T12:46:23.341Z",
+      "host_groups": [
+        ""
+      ],
+      "metadata": {
+        "filename": ""
+      },
+      "mobile_action": "nothing",
+      "platforms": [
+        "windows","mac"
+      ],
+      "severity": "high",
+      "source": "Report CTI",
+      "tags": [
+        "one","two"
+      ],
+      "type": "domain",
+      "value": "www.google.com"
+    },
+	{
+      "action": "prevent",
+      "applied_globally": true,
+      "description": "Test SHA256",
+      "expiration": "2021-12-05T12:46:23.341Z",
+      "host_groups": [
+        ""
+      ],
+      "metadata": {
+        "filename": "iexplorer.exe"
+      },
+      "mobile_action": "nothing",
+      "platforms": [
+        "windows","mac"
+      ],
+      "severity": "medium",
+      "source": "Report CTI",
+      "tags": [
+        "one","two"
+      ],
+      "type": "sha256",
+      "value": "688787d8ff144c502c7f5cffaafe2cc588d86079f9de88304c26b0cb99ce91c6"
+    },
+	{
+      "action": "allow",
+      "applied_globally": true,
+      "description": "test allow SHA256",
+      "expiration": "2021-12-05T12:46:23.341Z",
+      "host_groups": [
+		""
+	  ],
+      "metadata": {
+        "filename": "explorer.exe"
+      },
+      "mobile_action": "nothing",
+      "platforms": [
+        "windows"
+      ],
+      "severity": "Critical",
+      "source": "Report CTI",
+      "tags": [
+        "three","two"
+      ],
+      "type": "sha256",
+      "value": "688787d8ff144c502c7f5cffaafe2cc588d86079f9de88304c26b0cb99ce91c6"
+    },
+	{
+      "action": "prevent",
+      "applied_globally": true,
+      "description": "test MD5",
+      "expiration": "2021-12-05T12:46:23.341Z",
+      "host_groups": [
+		""
+	  ],
+      "metadata": {
+        "filename": "powershell.exe"
+      },
+      "mobile_action": "nothing",
+      "platforms": [
+        "windows","mac"
+      ],
+      "severity": "critical",
+      "source": "Report CTI",
+      "tags": [
+        "one","two"
+      ],
+      "type": "md5",
+      "value": "7815696ecbf1c96e6894b779456d330e"
+    },
+	{
+	  "action": "detect",
+      "applied_globally": true,
+      "description": "test IPV6",
+      "expiration": "2037-03-21T12:46:23.341Z",
+      "host_groups": [
+		""
+	  ],
+      "metadata": {
+        "filename": ""
+      },
+      "mobile_action": "nothing",
+      "platforms": [
+        "windows","mac","linux"
+      ],
+      "severity": "medium",
+      "source": "Report CTI",
+      "tags": [
+        "one","two"
+      ],
+      "type": "ipv6",
+      "value": "0:0:0:0:0:ffff:fbb9:cd30"
+    },
+	{
+      "action": "detect",
+      "applied_globally": true,
+      "description": "test IPV4",
+      "expiration": "2037-03-21T12:46:23.341Z",
+      "host_groups": [
+		""
+	  ],
+      "metadata": {
+        "filename": "powershell.exe"
+      },
+      "mobile_action": "nothing",
+      "platforms": [
+        "windows","mac"
+      ],
+      "severity": "high",
+      "source": "Report CTI",
+      "tags": [
+        "one","two"
+      ],
+      "type": "ipv4",
+      "value": "251.185.205.48"
+    }
+  ]
+}
+
+{
+  "comment": "Prueba de subida IOCs by Eric Guerra", 
+  "indicators": [
+    {
+      "action": "prevent", 
+      "applied_globally": true, 
+      "description": "FontOnLake Malware", 
+      "expiration": "2021-12-05T12:46:23.341Z", 
+      "host_groups": [""], 
+      "metadata": {"filename": "10112021 CTI Weekly Report - IOCs.csv"}, 
+      "mobile_action": "nothing", 
+      "platforms": ["windows", "mac"], 
+      "severity": "high", 
+      "source": "https://www.welivesecurity.com/2021/10/07/fontonlake-previously-unknown-malware-family-targeting-linux/", 
+      "tags": ["Linux.Siggen.4216", "Trojan.Generic.30363862", "ELF.Trojan.44589.GC", "Trojan.Linux.Agent", "Trojan.Linux.Agent.gen", "Trojan.Generic.D1CF50D6", "Trojan Horse", "a variant of Linux/FontOnLake.B", "Rootkit.Linux.SUTERSUCH.B", "ELF:ProcHider-L [Trj]", "HEUR:Trojan.Linux.Agent.gen", "Linux.S.FontOnLake.903000", "Linux/Bckdr-RXV", "Malware@#113h2bt6kjh0a", "RDN/Generic.dx", "Trojan.Generic.30363862 (B)", "Trojan.Linux.Fontonlake", "Trojan.Linux.bnw", "LINUX/Agent.hdfev", "Trojan:Linux/HCRootkit.C!MTB", "Malicious (score: 99)", "Trojan/Linux.Agent.903000", "malware (ai score=100)"], 
+      "type": "md5", 
+      "value": "115620dfb71e59b9dad47a7ab99c88cd"}
+      ]
+}
+
+{    
+  "type": "file",
+  "id": "8739c76e681f900923b900c9df0ef75cf421d39cabb54650c4b9ad19b6a76d85",
+  "links": {
+    "self": "https://www.virustotal.com/api/v3/files/8739c76e681f900923b900c9df0ef75cf421d39cabb54650c4b9ad19b6a76d85"
+  },
+  "data": {
+    "attributes": {
+      "first_seen_itw_date": 1075654056,
+      "first_submission_date": 1170892383,
+      "last_analysis_date": 1502355193,
+      "last_analysis_results": {
+        "AVG": {
+          "category": "undetected",
+          "engine_name": "AVG",
+          "engine_update": "20170810",
+          "engine_version": "8.0.1489.320",
+          "method": "blacklist",
+          "result": null
+        }
+        ...
+      },
+      "last_analysis_stats": {
+        "harmless": 0,
+        "malicious": 0,
+        "suspicious": 0,
+        "timeout": 0,
+        "type-unsupported": 8,
+        "undetected": 59
+      },
+      "last_submission_date": 1502355193,
+      "magic": "data",
+      "md5": "76cdb2bad9582d23c1f6f4d868218d6c",
+      "names": [
+        "zipnew.dat",
+        "327916-1502345099.zip",
+        "ac3plug.zip",
+        "IMG_6937.zip",
+        "DOC952.zip",
+        "20170801486960.zip"
+      ],
+      "nsrl_info": {
+        "filenames": [
+          "WINDOWS DIALUP.ZIP",
+          "kemsetup.ZIP",
+          "Data_Linux.zip",
+          "2003.zip",
+          "_6A271FB199E041FC82F4D282E68B01D6"
+        ],
+        "products": [
+          "Master Hacker Internet Terrorism (Core Publishing Inc.)",
+          "Read Rabbits Math Ages 6-9 (Smart Saver)",
+          "Neverwinter Nights Gold (Atari)",
+          "Limited Edition Print Workshop 2004 (ValuSoft)",
+          "Crysis (Electronic Arts Inc.)"
+        ]
+      },
+      "reputation": -889,
+      "sha1": "b04f3ee8f5e43fa3b162981b50bb72fe1acabb33",
+      "sha256": "8739c76e681f900923b900c9df0ef75cf421d39cabb54650c4b9ad19b6a76d85",
+      "size": 22,
+      "ssdeep": "3:pjt/l:Nt",
+      "tags": [
+        "software-collection",
+        "nsrl",
+        "attachment",
+        "trusted",
+        "via-tor"
+      ],
+      "times_submitted": 26471,
+      "total_votes": {
+        "harmless": 639,
+        "malicious": 958
+      },
+      "trid": [
+        {
+          "file_type": "ZIP compressed archive (empty)",
+          "probability": 100
+        }
+      ],
+      "trusted_verdict": {
+        "filename": "lprn_spotlightstory_015.zip",
+        "link": "https://dl.google.com/dl/spotlight/test/lprn_spotlightstory/9/lprn_spotlightstory_015.zip",
+        "organization": "Google",
+        "verdict": "goodware"
+      },
+      "type_description": "unknown",
+      }
+    }
+  }
+}

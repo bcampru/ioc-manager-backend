@@ -4,9 +4,7 @@ services:
     command:
       - /bin/sh
       - -c
-      - |
-        echo "$CI_SERVER_TLS_CA_FILE" > /etc/ssl/certs/10.1.1.159.crt || exit
-        dockerd-entrypoint.sh || exit
+      - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:8888 || exit
 
 build:
   stage: build

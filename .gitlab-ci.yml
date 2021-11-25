@@ -1,3 +1,9 @@
+image: docker:latest
+
+variables:
+  DOCKER_TLS_CERTDIR: ""
+
+
 build:
   services:
     - name: docker:stable-dind

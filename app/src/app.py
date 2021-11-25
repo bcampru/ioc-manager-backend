@@ -16,6 +16,9 @@ app.config['MAX_CONTENT_LENGHT']=16*1000*1000*1000
 @app.route('/form', methods=['POST'])
 def form():
     if request.method == 'POST':
+        print(os.getcwd())
+        os.chdir('./app/src')
+        print(os.getcwd())
     
         print(request.files['file'])
 
@@ -42,10 +45,10 @@ def form():
                         a[0] = a[0].replace("-", "")
                         llista_type.append(a[0])
                         llista_value.append(a[1])
-                        diccionario = virustotal(a)
+                        diccionario = VT.virustotal(a)
 
                         if(diccionario["score"] != '0' and diccionario["score"] != '-1'):
-                            result = crowd(diccionario, "prevent", csv.filename)
+                            result = crowdstrike.crowd(diccionario, "prevent", csv.filename)
                             file.write(a[1] + " " + diccionario["name"] + os.linesep)
 
                             if(int(result["status_code"]) >= 400):
@@ -66,9 +69,9 @@ def form():
                         llista_value.append(a[1])
 
                         if (a[0] == 'Domain'):
-                            diccionario = virustotal(a)
+                            diccionario = VT.virustotal(a)
                             if(diccionario["score"] != '0' and diccionario["score"] != '-1'):
-                                result = crowd(diccionario, "detect", csv.filename)
+                                result = crowdstrike.crowd(diccionario, "detect", csv.filename)
 
                                 if(int(result["status_code"]) >= 400):
                                     llista_comprovacio.append(result["body"]["resources"][0]["message"])
@@ -95,7 +98,8 @@ def form():
                 
                 file.close()
 
-            except:
+            except Exception as value:
+                print(str(value))
                 return render_template('error.html')
 
             return render_template('confirmar.html')

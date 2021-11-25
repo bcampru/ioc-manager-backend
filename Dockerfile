@@ -1,20 +1,25 @@
-FROM python:latest
-
-ENV APPPATH /opt/myflaskapp
-COPY . $APPPATH
-WORKDIR $APPPATH/app
-
-RUN buildDeps='python3-pip python3-dev build-essential' \
-    && set -x \
-    && apt-get update \
-	&& apt-get install -y $buildDeps \
- 	&& pip3 install --upgrade pip3 \
- 	&& pip3 install -r requirements.txt \
- 	&& apt-get clean \
- 	&& rm -rf /var/lib/apt/lists/* \
- 	&& apt-get purge -y --auto-remove $buildDeps
+# For more information, please refer to https://aka.ms/vscode-docker-python
+FROM python:slim
 
 EXPOSE 5000
 
-ENTRYPOINT ["python3"]
-CMD ["src/app.py"]
+# Keeps Python from generating .pyc files in the container
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Turns off buffering for easier container logging
+ENV PYTHONUNBUFFERED=1
+
+# Install pip requirements
+COPY requirements.txt .
+RUN python -m pip install -r requirements.txt
+
+WORKDIR /app
+COPY . /app
+
+# Creates a non-root user with an explicit UID and adds permission to access the /app folder
+# For more info, please refer to https://aka.ms/vscode-docker-python-configure-containers
+RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
+USER appuser
+
+# During debugging, this entry point will be overridden. For more information, please refer to https://aka.ms/vscode-docker-python-debug
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app.src.app:app"]

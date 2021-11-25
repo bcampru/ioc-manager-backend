@@ -3,10 +3,10 @@ import requests
 import pandas as pd
 import os
 from pandas import ExcelWriter
-from VT import *
-from authentication import *
-from create_json import *
-from crowdstrike import *
+from app import VT
+from app import authentication
+from app import create_json
+from app import crowdstrike
 
 
 app = Flask(__name__)

@@ -1,6 +1,3 @@
-image: docker:latest
-
-
 build:
   services:
     - name: docker:stable-dind
@@ -10,7 +7,6 @@ build:
         - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:8888 || exit
   stage: build
   script:
-    - echo "JOB_TIMESTAMP $JOB_TIMESTAMP | COMMIT_HASH_SHORT $COMMIT_HASH_SHORT | COMMIT_BRANCH_OR_TAG $COMMIT_BRANCH_OR_TAG | REGISTRY_HOST $REGISTRY_HOST | REGISTRY_USER $REGISTRY_USER | REGISTRY_IMAGE $REGISTRY_IMAGE | CERTIFICATE_URL $CI_SERVER_TLS_CA_FILE"
     - docker login -u "gitlab-ci-token" -p "$CI_BUILD_TOKEN" $CI_REGISTRY
     - docker pull $CI_REGISTRY_IMAGE:latest || true
     - docker build --cache-from $CI_REGISTRY_IMAGE:latest --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:latest .

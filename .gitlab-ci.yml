@@ -3,7 +3,6 @@ image: docker:latest
 variables:
   DOCKER_TLS_CERTDIR: ""
 
-
 build:
   services:
     - name: docker:stable-dind
@@ -18,6 +17,12 @@ build:
     - docker build --cache-from $CI_REGISTRY_IMAGE:latest --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:latest .
 
 deploy:
+  services:
+    - name: docker:stable-dind
+      command:
+        - /bin/sh
+        - -c
+        - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:8888 || exit
   stage: deploy
   script:
     - docker login -u "gitlab-ci-token" -p "$CI_BUILD_TOKEN" $CI_REGISTRY

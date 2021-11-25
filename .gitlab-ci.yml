@@ -1,12 +1,13 @@
 image: docker:latest
-services:
-  - name: docker:dind
-    command:
-      - /bin/sh
-      - -c
-      - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:8888 || exit
+
 
 build:
+  services:
+    - name: docker:stable-dind
+      command:
+        - /bin/sh
+        - -c
+        - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:8888 || exit
   stage: build
   script:
     - echo "JOB_TIMESTAMP $JOB_TIMESTAMP | COMMIT_HASH_SHORT $COMMIT_HASH_SHORT | COMMIT_BRANCH_OR_TAG $COMMIT_BRANCH_OR_TAG | REGISTRY_HOST $REGISTRY_HOST | REGISTRY_USER $REGISTRY_USER | REGISTRY_IMAGE $REGISTRY_IMAGE | CERTIFICATE_URL $CI_SERVER_TLS_CA_FILE"

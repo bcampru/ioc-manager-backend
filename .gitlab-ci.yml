@@ -1,6 +1,12 @@
 image: docker:latest
 services:
-  - docker:dind
+  - name: docker:dind
+    command:
+      - /bin/sh
+      - -c
+      - |
+        echo "$CI_SERVER_TLS_CA_FILE" > /etc/ssl/certs/ca-cert-gitlab.mydomain.com.crt || exit
+        dockerd-entrypoint.sh || exit
 
 build:
   stage: build

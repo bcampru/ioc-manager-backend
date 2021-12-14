@@ -16,7 +16,18 @@ body{
     text-align: center;
 }
 
-.titol h1{
+.titol2{
+    width: 1000px;
+    padding: 40px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #413d3d;
+    text-align: center;
+}
+
+.titol h1, .titol2 h1{
     color: white;
     text-transform: uppercase;
     font-weight: 500;
@@ -31,23 +42,30 @@ body{
     box-shadow: 5px 5px 10px black;
     width: 350px;
     outline: none;
+    margin-top: 100px;
 }
 
 ::-webkit-file-upload-button{
     color: white;
-    background: #206a5d;
+    background: #e05e12;
     padding: 20px;
     border: none;
     border-radius: 50px;
+    transition: background .5s;
     box-shadow: 1px 0 1px 1px #6b4559;
     outline: none;
 }
 
 ::-webkit-file-upload-button:hover{
-    background: #438a5e;
+    background: #b34709;
 }
 
-.titol input[type="submit"]{
+.cuadre{
+    width: 40%
+    
+}
+
+.titol input[type="submit"], .boto{
     background: none;
     display: block;
     margin: auto;
@@ -61,6 +79,11 @@ body{
     cursor: pointer;
 }
 
-.titol input[type="submit"]:hover{
+.titol2 .boto{
+    width: 20%;
+}
+
+.titol input[type="submit"]:hover, .boto:hover{
     background: #2ecc71;
 }
+

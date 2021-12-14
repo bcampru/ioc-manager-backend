@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Update IOCs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="{{ url_for('static', filename='app.css')}}" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+
+  
+    <form action="/update" method="POST" class="titol" enctype="multipart/form-data">
+        <h1>Update with the following actions the IOCs to Crowd</h1>
+        <br>
+
+        <div class="container">
+            <select name="action" id="action" required>
+                <option value="detect">Detect</option>
+                <option value="prevent">Prevent</option>
+            </datalist>
+            <br><br>
+            <input type="file" name="file" class="upload"> 
+            <br>
+        </div>
+        <br><br>
+        <input type="submit" value="Submit" id/>
+    </form>
+
+</body>
+</html>

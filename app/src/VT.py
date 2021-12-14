@@ -1,6 +1,7 @@
 import requests
 import json
 import ipaddress
+from app.src import converter
 
 def virustotal(input):
     if (input[0] == 'SHA256') or (input[0] == 'MD5'):
@@ -21,6 +22,8 @@ def virustotal(input):
 
     try:
         dict_web = r['data']['attributes']['last_analysis_results']
+
+        cambio = converter.Converter(variable)
 
         max_detect = 0
         score = 0
@@ -69,7 +72,8 @@ def virustotal(input):
             "severity" : severity,
             "description" : input[2],
             "source" : input[3],
-            "name": name  
+            "name": name,
+            "expiration": cambio.converter()
         }
 
     except:

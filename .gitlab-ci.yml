@@ -1,6 +1,8 @@
 image: docker:latest
 
 build:
+  tags:
+    - job
   services:
     - name: docker:stable-dind
       command:
@@ -15,6 +17,8 @@ build:
     - docker push $CI_REGISTRY_IMAGE
 
 deploy:
+  tags:
+    - deploy
   services:
     - name: docker:stable-dind
       command:

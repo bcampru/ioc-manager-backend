@@ -2,8 +2,8 @@ from falconpy.api_complete import APIHarness as Uber
 from falconpy.ioc import IOC as IOC
 
 creds = {
-"client_id": "250408d06f6f473584368c9910891e9c",
-"client_secret": "0AuLZJ5FvQbfTtwxGR1XnOksU9a4mz3pqN6g8H72"
+"client_id": "45b504f3c6ee44f3957c8ee9993179e8",
+"client_secret": "DjIps7aT8E2d5gh9w06QAMoSbKrOuFZyXRlW431t"
 }
 
 def createIOCPayload(source: str, action: str, mark: list, desc: str, type: str, val: str, severity: str, filename: str, expiration: str):
@@ -18,7 +18,7 @@ def createIOCPayload(source: str, action: str, mark: list, desc: str, type: str,
       "host_groups": [""], 
       "metadata": {"filename": filename}, 
       "mobile_action": "nothing", 
-      "platforms": ["windows", "mac"], 
+      "platforms": ["windows", "linux"], 
       "severity": severity, 
       "source": source, 
       "tags": mark, 

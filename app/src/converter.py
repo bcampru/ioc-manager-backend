@@ -10,7 +10,7 @@ class Converter:
         date = self.hour[0].split("-")
         if(self.type == "files/"):
             nextYear = int(date[0]) + 1
-            nextMonth = int(date[1])
+            nextMonth = date[1]
         else:
             nextMonth = int(date[1]) + 3
             if(int(date[1])>12):

@@ -15,7 +15,7 @@ def virustotal(input):
     url = 'https://www.virustotal.com/api/v3/' + variable + str(input[1])
     headeris = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36',
-        'x-apikey': 'f2449cde5f7e1205caa9010c737184ddae989bdf275f6f43b71f1a7a24c44204'
+        'x-apikey': '8efcd2ce48b4139ff2033d8e6c17de92cca24661ea4236e7b1feda524b01b0d6'
     }
 
     r = requests.get(url, headers=headeris).json()

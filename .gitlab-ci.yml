@@ -12,9 +12,9 @@ build_prod:
         - /bin/sh
         - -c
         - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:8888 || exit
-        - cp /tmp/NECSIA ./app/src/.env
   stage: build
   script:
+    - cp /tmp/NECSIA ./app/src/.env
     - docker login -u "gitlab-ci-token" -p "$CI_BUILD_TOKEN" $CI_REGISTRY
     - docker build --cache-from $CI_REGISTRY_IMAGE:latest --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:latest .
     - docker push $CI_REGISTRY_IMAGE

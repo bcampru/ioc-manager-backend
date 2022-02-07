@@ -1,14 +1,10 @@
 {
   "version": "0.2.0",
-
   "configurations": [
     {
       "name": "Python : app.main",
-
       "cwd": "${workspaceFolder}",
-
       "type": "python",
-
       "request": "launch",
       "program": "/bin/gunicorn",
       "args": ["--bind", "0.0.0.0:5050", "app.src.app:app", "-t", "6000"],

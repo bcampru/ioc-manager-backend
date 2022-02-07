@@ -34,7 +34,7 @@ build_test:
     - ls
     - pwd
     - cp $NECSIA ./app/src/.env
-    - ls ./app/src/
+    - ls -la ./app/src/
     - docker login -u "gitlab-ci-token" -p "$CI_BUILD_TOKEN" $CI_REGISTRY
     - docker build --cache-from $CI_REGISTRY_IMAGE:test --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:test .
     - docker push $CI_REGISTRY_IMAGE:test

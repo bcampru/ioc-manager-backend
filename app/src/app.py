@@ -51,7 +51,10 @@ def form():
                         
                             if(int(result["status_code"]) >= 400):
                                 llista_bool.append("No")
-                                llista_comprovacio.append(result["body"]["resources"][0]["message"])
+                                try:
+                                    llista_comprovacio.append(result["body"]["resources"][0]["message"])
+                                except:
+                                    llista_comprovacio.append("falla " + result)
                             else:
                                 file.write(a[0] + " " + a[1] + " " + diccionario["name"] + os.linesep)
                                 llista_comprovacio.append("Hash correctly added")
@@ -78,7 +81,10 @@ def form():
                                 
                                 if(int(result["status_code"]) >= 400):
                                     llista_bool.append("No")
-                                    llista_comprovacio.append(result["body"]["resources"][0]["message"])
+                                    try:
+                                        llista_comprovacio.append(result["body"]["resources"][0]["message"])
+                                    except:
+                                        llista_comprovacio.append("falla " + result)
                                 else:
                                     file.write(a[0] + " " + a[1] + os.linesep)
                                     llista_comprovacio.append("correctly added")

@@ -14,6 +14,7 @@ build_prod:
         - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:8888 || exit
   stage: build
   script:
+    - cp $CLARIANT ./app/src/.env
     - docker login -u "gitlab-ci-token" -p "$CI_BUILD_TOKEN" $CI_REGISTRY
     - docker build --cache-from $CI_REGISTRY_IMAGE:latest --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:latest .
     - docker push $CI_REGISTRY_IMAGE

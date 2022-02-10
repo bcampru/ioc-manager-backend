@@ -5,3 +5,4 @@ crowdstrike-falconpy
 pandas
 openpyxl
 python-dotenv
+futures

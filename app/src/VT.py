@@ -4,13 +4,9 @@ import ipaddress
 from app.src import converter
 
 def virustotal(input):
-    if (input[0] == 'SHA256') or (input[0] == 'MD5'):
-        variable = "files/"
-    else:
-        if(input[0] == 'URL'):
-            variable = "urls/"
-        elif(input[0] == 'Domain'):
-            variable = "domains/"
+    dic = {'SHA256': "files/",'MD5': "files/", 'URL': "urls/", 'Domain': "domains/", "ipv4": "ip_addresses"}
+
+    variable = dic[input[0]]
 
     url = 'https://www.virustotal.com/api/v3/' + variable + str(input[1])
     headeris = {

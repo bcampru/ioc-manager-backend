@@ -6,10 +6,9 @@
       "cwd": "${workspaceFolder}",
       "type": "python",
       "request": "launch",
-      "program": "/bin/gunicorn",
-      "args": ["--bind", "0.0.0.0:5050", "app.src.app:app", "-t", "6000"],
+      "program": "C:/Python310/Scripts/waitress-serve.exe",
+      "args": ["--listen=localhost:8000", "app.src.app:app"],
       "console": "integratedTerminal",
-      "postDebugTask": "killdebugger",
       "justMyCode": true
     }
   ]

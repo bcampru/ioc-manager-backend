@@ -12,6 +12,7 @@ ENV PYTHONUNBUFFERED=1
 # Install pip requirements
 COPY requirements.txt .
 RUN python -m pip install -r requirements.txt
+RUN apt update
 RUN apt-get install python-tk python3-tk tk-dev
 
 WORKDIR /app

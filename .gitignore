@@ -195,3 +195,5 @@ cython_debug/
 # Support for Project snippet scope
 
 # End of https://www.toptal.com/developers/gitignore/api/flask,dotenv,visualstudiocode,git
+.vscode/launch.json
+.vscode/launch.json

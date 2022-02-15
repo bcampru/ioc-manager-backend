@@ -56,7 +56,10 @@ def virustotal(input):
 
         name = input[1].lower()
         if(variable == "files/"):
-            name = r['data']['attributes']['meaningful_name']
+            try:
+                name = r['data']['attributes']['type_description']
+            except:
+                print("error getting Name File")
 
         diccionario = {
             "type": input[0].lower(),

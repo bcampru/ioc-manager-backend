@@ -16,10 +16,11 @@ def virustotal(input):
 
     r = requests.get(url, headers=headeris).json()
 
+    cambio = converter.Converter(variable)
+
     try:
         dict_web = r['data']['attributes']['last_analysis_results']
 
-        cambio = converter.Converter(variable)
 
         max_detect = 0
         score = 0
@@ -78,7 +79,10 @@ def virustotal(input):
             "value": input[1].lower(),
             "description" : input[2],
             "source" : input[3],
-            "score" : "-1"
+            "score" : "-1",
+            "expiration": cambio.converter(),
+            "severity": "Informational",
+            "mark" : ["VT not found"]
         }
         
     return diccionario

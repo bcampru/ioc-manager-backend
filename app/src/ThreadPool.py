@@ -62,7 +62,7 @@ def add(a, csv, file):
                #     elif(diccionario["score"] == '-1'):
                #         llista_comprovacio="Domain wasn't added, not found in VirusTotal"
             else:
-                if(a[0] == "URL"):
+                if(a[0] == "URL") or (a[0] == "IP Address"):
                     ipv4 = re.findall( r'[0-9]+(?:\.[0-9]+){3}', a[1])
                     if(len(ipv4)>0):
                         a[1] = ipv4[0]

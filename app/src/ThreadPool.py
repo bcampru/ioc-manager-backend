@@ -12,27 +12,27 @@ def add(a, csv, file):
             llista_value=a[1]
             diccionario = VT.virustotal(a)
 
-            if(diccionario["score"] != '0' and diccionario["score"] != '-1'):
+            #if(diccionario["score"] != '0' and diccionario["score"] != '-1'):
 
-                result = crowdstrike.crowd(diccionario, "detect", csv.filename)
-            
-                if(int(result["status_code"]) >= 400):
-                    llista_bool="No"
-                    try:
-                        llista_comprovacio=result["body"]["resources"][0]["message"]
-                    except:
-                        llista_comprovacio="falla " + result
-                else:
-                    file.write(a[0] + " " + a[1] + " " + diccionario["name"] + os.linesep)
-                    llista_comprovacio="Hash correctly added"
-                    llista_bool="Yes"
+            result = crowdstrike.crowd(diccionario, "detect", csv.filename)
+        
+            if(int(result["status_code"]) >= 400):
+                llista_bool="No"
+                try:
+                    llista_comprovacio=result["body"]["resources"][0]["message"]
+                except:
+                    llista_comprovacio="falla " + result
             else:
-                llista_bool = "No"
-                if(diccionario["score"] == '0'):
-                    llista_comprovacio = "Hash wasn't added as it isn't harmfull"
-                
-                elif(diccionario["score"] == '-1'):
-                    llista_comprovacio = "Hash wasn't added, not found in VirusTotal"
+                file.write(a[0] + " " + a[1] + " " + diccionario["name"] + os.linesep)
+                llista_comprovacio="Hash correctly added"
+                llista_bool="Yes"
+          # else:
+          #     llista_bool = "No"
+          #     if(diccionario["score"] == '0'):
+          #         llista_comprovacio = "Hash wasn't added as it isn't harmfull"
+          #     
+          #     elif(diccionario["score"] == '-1'):
+          #         llista_comprovacio = "Hash wasn't added, not found in VirusTotal"
             
 
         else:
@@ -43,24 +43,24 @@ def add(a, csv, file):
 
             if (a[0] == 'Domain'):
                 diccionario = VT.virustotal(a)
-                if(diccionario["score"] != '0' and diccionario["score"] != '-1'):
+                #if(diccionario["score"] != '0' and diccionario["score"] != '-1'):
                     
-                    result = crowdstrike.crowd(diccionario, "detect", csv.filename)
-                    
-                    if(int(result["status_code"]) >= 400):
-                        llista_bool="No"
-                        llista_comprovacio=result["body"]["resources"][0]["message"]
-                    else:
-                        file.write(a[0] + " " + a[1] + os.linesep)
-                        llista_comprovacio="correctly added"
-                        llista_bool="Yes"
-                else:
-                    llista_bool="No"
-                    if(diccionario["score"] == '0'):
-                        llista_comprovacio="Domain wasn't added as it isn't harmfull"
+                result = crowdstrike.crowd(diccionario, "detect", csv.filename)
                 
-                    elif(diccionario["score"] == '-1'):
-                        llista_comprovacio="Domain wasn't added, not found in VirusTotal"
+                if(int(result["status_code"]) >= 400):
+                    llista_bool="No"
+                    llista_comprovacio=result["body"]["resources"][0]["message"]
+                else:
+                    file.write(a[0] + " " + a[1] + os.linesep)
+                    llista_comprovacio="correctly added"
+                    llista_bool="Yes"
+               # else:
+               #     llista_bool="No"
+               #     if(diccionario["score"] == '0'):
+               #         llista_comprovacio="Domain wasn't added as it isn't harmfull"
+               # 
+               #     elif(diccionario["score"] == '-1'):
+               #         llista_comprovacio="Domain wasn't added, not found in VirusTotal"
             else:
                 if(a[0] == "URL"):
                     ipv4 = re.findall( r'[0-9]+(?:\.[0-9]+){3}', a[1])
@@ -71,27 +71,27 @@ def add(a, csv, file):
                         llista_value=a[1]
                         diccionario = VT.virustotal(a)
 
-                        if(diccionario["score"] != '0' and diccionario["score"] != '-1'):
+                        #if(diccionario["score"] != '0' and diccionario["score"] != '-1'):
 
-                            result = crowdstrike.crowd(diccionario, "detect", csv.filename)
-                        
-                            if(int(result["status_code"]) >= 400):
-                                llista_bool="No"
-                                try:
-                                    llista_comprovacio=result["body"]["resources"][0]["message"]
-                                except:
-                                    llista_comprovacio="falla " + result
-                            else:
-                                file.write(a[0] + " " + a[1] + " " + diccionario["name"] + os.linesep)
-                                llista_comprovacio="IP correctly added"
-                                llista_bool="Yes"
+                        result = crowdstrike.crowd(diccionario, "detect", csv.filename)
+                    
+                        if(int(result["status_code"]) >= 400):
+                            llista_bool="No"
+                            try:
+                                llista_comprovacio=result["body"]["resources"][0]["message"]
+                            except:
+                                llista_comprovacio="falla " + result
                         else:
-                            llista_bool = "No"
-                            if(diccionario["score"] == '0'):
-                                llista_comprovacio = "IP wasn't added as it isn't harmfull"
-                            
-                            elif(diccionario["score"] == '-1'):
-                                llista_comprovacio = "IP wasn't added, not found in VirusTotal"
+                            file.write(a[0] + " " + a[1] + " " + diccionario["name"] + os.linesep)
+                            llista_comprovacio="IP correctly added"
+                            llista_bool="Yes"
+                        #else:
+                        #    llista_bool = "No"
+                        #    if(diccionario["score"] == '0'):
+                        #        llista_comprovacio = "IP wasn't added as it isn't harmfull"
+                        #    
+                        #    elif(diccionario["score"] == '-1'):
+                        #        llista_comprovacio = "IP wasn't added, not found in VirusTotal"
                     else:
                         llista_comprovacio="Type is not valid"
                         llista_bool="No" 

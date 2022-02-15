@@ -59,8 +59,6 @@ def updateIoc(diccionario, action, filename):
     ioc = diccionario["value"]
     response = falcon.indicator_search(filter=f"value:'{ioc}'")
     if (len(response['body']['resources']) > 0):
-        falcon.indicator_update_v1(
-            action="prevent", value="9344afc63753cd5e2ee0ff9aed43dc56")
         delete_crowd(diccionario["value"])
         crowd(diccionario, action, filename)
 

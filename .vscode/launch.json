@@ -1,23 +1,15 @@
 {
   "version": "0.2.0",
-
   "configurations": [
     {
       "name": "Python : app.main",
-
       "cwd": "${workspaceFolder}",
-
       "type": "python",
-
       "request": "launch",
-
-      "program": "/usr/bin/gunicorn",
-
-      "args": ["--bind", "localhost:5050", "app.src.app:app"],
-
+      "program": "C:/Python310/Scripts/waitress-serve.exe",
+      "args": ["--listen=localhost:8000", "app.src.app:app"],
       "console": "integratedTerminal",
-
-      "postDebugTask": "killdebugger"
+      "justMyCode": true
     }
   ]
 }

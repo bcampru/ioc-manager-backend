@@ -85,7 +85,8 @@ def virustotal(input):
             "score" : "-1",
             "expiration": cambio.converter(),
             "severity": "Informational",
-            "mark" : ["VT not found"]
+            "mark" : ["VT not found"],
+            "name": input[1].lower()
         }
         
     return diccionario

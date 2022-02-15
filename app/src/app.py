@@ -4,8 +4,8 @@ import requests
 import pandas as pd
 import os
 from pandas import ExcelWriter
-from app.src import VT
-from app.src import crowdstrike
+import concurrent.futures
+from app.src import ThreadPool
 
 
 app = Flask(__name__)
@@ -33,66 +33,20 @@ def form():
                     df = pd.read_excel(csv)
 
                 file = open("data/resultat_hash.txt", "w")
-                llista_type = []
-                llista_comprovacio = []
-                llista_value = []
-                llista_bool = []
                 
-                for a in df.values:
-                    if (a[0] == 'SHA-256') or (a[0] == 'MD5'):
-                        a[0] = a[0].replace("-", "")
-                        llista_type.append(a[0])
-                        llista_value.append(a[1])
-                        diccionario = VT.virustotal(a)
-
-                        if(diccionario["score"] != '0' and diccionario["score"] != '-1'):
-
-                            result = crowdstrike.crowd(diccionario, "detect", csv.filename)
-                        
-                            if(int(result["status_code"]) >= 400):
-                                llista_bool.append("No")
-                                llista_comprovacio.append(result["body"]["resources"][0]["message"])
-                            else:
-                                file.write(a[0] + " " + a[1] + " " + diccionario["name"] + os.linesep)
-                                llista_comprovacio.append("Hash correctly added")
-                                llista_bool.append("Yes")
-                        else:
-                            llista_bool.append("No")
-                            if(diccionario["score"] == '0'):
-                                llista_comprovacio.append("Hash wasn't added as it isn't harmfull")
-                            
-                            elif(diccionario["score"] == '-1'):
-                                llista_comprovacio.append("Hash wasn't added, not found in VirusTotal")
-
-                    else:
-                        a[1] = a[1].replace("[", "")
-                        a[1] = a[1].replace("]", "")
-                        llista_type.append(a[0])
-                        llista_value.append(a[1])
-
-                        if (a[0] == 'Domain'):
-                            diccionario = VT.virustotal(a)
-                            if(diccionario["score"] != '0' and diccionario["score"] != '-1'):
-                                
-                                result = crowdstrike.crowd(diccionario, "detect", csv.filename)
-                                
-                                if(int(result["status_code"]) >= 400):
-                                    llista_bool.append("No")
-                                    llista_comprovacio.append(result["body"]["resources"][0]["message"])
-                                else:
-                                    file.write(a[0] + " " + a[1] + os.linesep)
-                                    llista_comprovacio.append("correctly added")
-                                    llista_bool.append("Yes")
-                            else:
-                                llista_bool.append("No")
-                                if(diccionario["score"] == '0'):
-                                    llista_comprovacio.append("Domain wasn't added as it isn't harmfull")
-                            
-                                elif(diccionario["score"] == '-1'):
-                                    llista_comprovacio.append("Domain wasn't added, not found in VirusTotal")
-                        else:
-                            llista_comprovacio.append("Type is not valid")
-                            llista_bool.append("No")
+                with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
+                     
+                    try:
+                        future_result={executor.submit(ThreadPool.add, a, csv, file) for a in df.values}
+                        aux=concurrent.futures.wait(future_result, None)
+                        llista_type=[a._result[0] for a in aux[0]]
+                        llista_comprovacio=[a._result[1] for a in aux[0]]
+                        llista_value=[a._result[2] for a in aux[0]]
+                        llista_bool=[a._result[3] for a in aux[0]]
+                    except:
+                        pass
+                
+                
 
                 pagina = pd.DataFrame({'type': llista_type,
                    'value': llista_value,
@@ -101,7 +55,6 @@ def form():
                    })
                 
                 pagina.to_excel("data/resultat.xlsx")
-                
                 
                 file.close()
 
@@ -125,12 +78,12 @@ def elimina():
                 else:
                     df = pd.read_excel(csv)
 
-
-                for a in df.values:
-                    a[0] = a[0].replace("-", "")
-                    a[1] = a[1].replace("[", "")
-                    a[1] = a[1].replace("]", "")
-                    crowdstrike.delete_crowd(a[1])
+                with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
+                    try:
+                        future_result={executor.submit(ThreadPool.delete_concurrent, a[1]) for a in df.values}
+                        aux=concurrent.futures.wait(future_result, None)
+                    except:
+                        pass  
                     
             except :
                 return render_template('error.html')
@@ -158,67 +111,19 @@ def actualitza():
                     df = pd.read_excel(csv)
 
                 file = open("data/resultat_hash.txt", "w")
-                llista_type = []
-                llista_comprovacio = []
-                llista_value = []
-                llista_bool = []
-
-                for a in df.values:
-                    if (a[0] == 'SHA-256') or (a[0] == 'MD5'):
-                        a[0] = a[0].replace("-", "")
-                        llista_type.append(a[0])
-                        llista_value.append(a[1])
-                        diccionario = VT.virustotal(a)
-
-                        if(diccionario["score"] != '0' and diccionario["score"] != '-1'):
-
-                            result = crowdstrike.updateIoc(diccionario, request.form['action'], csv.filename)
-                        
-                            if(int(result) == 0):
-                                llista_bool.append("No")
-                                llista_comprovacio.append("Not found in CrowdStrike")
-                            else:
-                                file.write(a[0] + " " + a[1] + " " + diccionario["name"] + os.linesep)
-                                llista_comprovacio.append("Hash correctly updated")
-                                llista_bool.append("Yes")
-                        else:
-                            llista_bool.append("No")
-                            if(diccionario["score"] == '0'):
-                                llista_comprovacio.append("Hash wasn't updated as it isn't harmfull")
-                            
-                            elif(diccionario["score"] == '-1'):
-                                llista_comprovacio.append("Hash wasn't updated, not found in VirusTotal and CrowdStrike")
-
-                    else:
-                        a[1] = a[1].replace("[", "")
-                        a[1] = a[1].replace("]", "")
-                        llista_type.append(a[0])
-                        llista_value.append(a[1])
-
-                        if (a[0] == 'Domain'):
-                            diccionario = VT.virustotal(a)
-                            if(diccionario["score"] != '0' and diccionario["score"] != '-1'):
-                                
-                                result = crowdstrike.updateIoc(diccionario, "detect", csv.filename)
-                                
-                                if(int(result) == 0):
-                                    llista_bool.append("No")
-                                    llista_comprovacio.append("Not found in CrowdStrike")
-                                else:
-                                    file.write(a[0] + " " + a[1] + os.linesep)
-                                    llista_comprovacio.append("correctly updated")
-                                    llista_bool.append("Yes")
-                            else:
-                                llista_bool.append("No")
-                                if(diccionario["score"] == '0'):
-                                    llista_comprovacio.append("Domain wasn't updated as it isn't harmfull")
-                            
-                                elif(diccionario["score"] == '-1'):
-                                    llista_comprovacio.append("Domain wasn't updated, not found in VirusTotal and CrowdStrike")
-                        else:
-                            llista_comprovacio.append("Type is not valid")
-                            llista_bool.append("No")
-
+  
+                with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
+                     
+                    try:
+                        future_result={executor.submit(ThreadPool.update_concurrent, a, csv, file, request.form['action']) for a in df.values}
+                        aux=concurrent.futures.wait(future_result, None)
+                        llista_type=[a._result[0] for a in aux[0]]
+                        llista_comprovacio=[a._result[1] for a in aux[0]]
+                        llista_value=[a._result[2] for a in aux[0]]
+                        llista_bool=[a._result[3] for a in aux[0]]
+                    except:
+                        pass
+  
                 pagina = pd.DataFrame({'type': llista_type,
                    'value': llista_value,
                    'Updated': llista_bool,

@@ -13,7 +13,7 @@ creds = {
 
 def createIOCPayload(source: str, action: str, mark: list, desc: str, type: str, val: str, severity: str, filename: str, expiration: str):
     payload = {
-        "comment": "Prueba de subida IOCs by Eric Guerra",
+        "comment": "IOCs Weekly added to CrowdStrike",
         "indicators": [
             {
                 "action": action,

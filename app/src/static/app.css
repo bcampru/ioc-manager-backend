@@ -33,6 +33,13 @@ body{
     font-weight: 500;
 }
 
+.company h1{
+    position: absolute;
+    right: 60%
+
+}
+
+
 
 
 .upload{

@@ -13,6 +13,9 @@ class Converter:
             nextMonth = date[1]
         else:
             nextMonth = int(date[1]) + 3
+            nextYear = int(date[0])
+            if(nextMonth>=0 and nextMonth<10):
+                nextMonth = "0" + str(nextMonth)
             if(int(date[1])>12):
                 nextMonth = nextMonth - 12
                 nextMonth = "0" + str(nextMonth)

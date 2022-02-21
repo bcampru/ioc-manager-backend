@@ -37,6 +37,7 @@ def form():
                 with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
                      
                     try:
+                        #future_result={ThreadPool.add(a, csv, file)  for a in df.values}
                         future_result={executor.submit(ThreadPool.add, a, csv, file) for a in df.values}
                         aux=concurrent.futures.wait(future_result, None)
                         llista_type=[a._result[0] for a in aux[0]]
@@ -80,7 +81,7 @@ def elimina():
 
                 with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
                     try:
-                        future_result={executor.submit(ThreadPool.delete_concurrent, a[1]) for a in df.values}
+                        future_result={executor.submit(ThreadPool.delete_concurrent, a) for a in df.values}
                         aux=concurrent.futures.wait(future_result, None)
                     except:
                         pass  
@@ -166,7 +167,7 @@ def update():
 
 @app.route("/")
 def main():
-    return render_template('index.html')
+    return render_template('index.html', var=os.getenv("logo"))
 
 if __name__ == "__main__":
     app.run()

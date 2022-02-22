@@ -21,7 +21,6 @@ def virustotal(input):
     try:
         dict_web = r['data']['attributes']['last_analysis_results']
 
-
         max_detect = 0
         score = 0
         tipo = []

@@ -47,17 +47,17 @@ def crowd(diccionario, action, filename):
 
 
 def delete_crowd(ioc):
-    falcon = IOC(creds=creds)
-    aid = falcon.indicator_delete_v1(filter=f"value:'{ioc}'")
+    falcon = Uber(creds=creds)
+    aid = falcon.command("indicator_delete_v1", filter=f"value:'{ioc}'")
 
     print(aid)
     return aid
 
 
 def updateIoc(diccionario, action, filename):
-    falcon = IOC(creds=creds)
+    falcon = Uber(creds=creds)
     ioc = diccionario["value"]
-    response = falcon.indicator_search(filter=f"value:'{ioc}'")
+    response = falcon.command("indicator_search_v1", filter=f"value:'{ioc}'")
     if (len(response['body']['resources']) > 0):
         delete_crowd(diccionario["value"])
         crowd(diccionario, action, filename)

@@ -21,7 +21,7 @@ def add(a, csv, file):
                 try:
                     llista_comprovacio=result["body"]["resources"][0]["message"]
                 except:
-                    llista_comprovacio="falla " + result
+                    llista_comprovacio="Error: " + result['status_code']
             else:
                 file.write(a[0] + " " + a[1] + " " + diccionario["name"] + os.linesep)
                 llista_comprovacio="Hash correctly added"
@@ -49,7 +49,10 @@ def add(a, csv, file):
                 
                 if(int(result["status_code"]) >= 400):
                     llista_bool="No"
-                    llista_comprovacio=result["body"]["resources"][0]["message"]
+                    try:
+                        llista_comprovacio=result["body"]["resources"][0]["message"]
+                    except:
+                        llista_comprovacio="Error: " + result['status_code']
                 else:
                     file.write(a[0] + " " + a[1] + os.linesep)
                     llista_comprovacio="correctly added"
@@ -80,7 +83,7 @@ def add(a, csv, file):
                             try:
                                 llista_comprovacio=result["body"]["resources"][0]["message"]
                             except:
-                                llista_comprovacio="falla " + result
+                                llista_comprovacio="Error: " + result['status_code']
                         else:
                             file.write(a[0] + " " + a[1] + " " + diccionario["name"] + os.linesep)
                             llista_comprovacio="IP correctly added"
@@ -140,7 +143,7 @@ def update_concurrent(a, csv, file, action):
                 diccionario = VT.virustotal(a)
                 #if(diccionario["score"] != '0' and diccionario["score"] != '-1'):
                     
-                result = crowdstrike.updateIoc(diccionario, action, csv.filename)
+                result = crowdstrike.updateIoc(diccionario, "detect", csv.filename)
                 
                 if(int(result) == 0):
                     llista_bool="No"
@@ -157,9 +160,9 @@ def update_concurrent(a, csv, file, action):
                 #    elif(diccionario["score"] == '-1'):
                 #        llista_comprovacio="Domain wasn't updated, not found in VirusTotal and CrowdStrike"
             else:
-                if(a[0] == "URL"):
+                if(a[0] == "URL") or (a[0] == "IP Address"):
                     ipv4 = re.findall( r'[0-9]+(?:\.[0-9]+){3}', a[1])
-                    if(len(ipv4>0)):
+                    if(len(ipv4)>0):
                         a[1] = ipv4[0]
                         a[0] = "ipv4"
                         llista_type=a[0]
@@ -168,17 +171,14 @@ def update_concurrent(a, csv, file, action):
 
                         #if(diccionario["score"] != '0' and diccionario["score"] != '-1'):
 
-                        result = crowdstrike.updateIoc(diccionario, action, csv.filename)
+                        result = crowdstrike.updateIoc(diccionario, "detect", csv.filename)
                     
-                        if(int(result["status_code"]) >= 400):
+                        if(int(result) == 0):
                             llista_bool="No"
-                            try:
-                                llista_comprovacio=result["body"]["resources"][0]["message"]
-                            except:
-                                llista_comprovacio="falla " + result
+                            llista_comprovacio="Not found in CrowdStrike"
                         else:
-                            file.write(a[0] + " " + a[1] + " " + diccionario["name"] + os.linesep)
-                            llista_comprovacio="IP correctly added"
+                            file.write(a[0] + " " + a[1] + os.linesep)
+                            llista_comprovacio="IP correctly updated"
                             llista_bool="Yes"
                         #else:
                         #    llista_bool = "No"

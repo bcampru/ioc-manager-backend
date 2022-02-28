@@ -170,7 +170,8 @@ def update():
 @app.route("/")
 def main():
     os.chdir(app.root_path)
-    return render_template('index.html', var=os.getenv("logo"))
+    val = os.getenv("logo")
+    return render_template('index.html', var=val)
 
 if __name__ == "__main__":
     app.run()

@@ -26,6 +26,7 @@ def add(a, csv, file):
                 file.write(a[0] + " " + a[1] + " " + diccionario["name"] + os.linesep)
                 llista_comprovacio="Hash correctly added"
                 llista_bool="Yes"
+                
           # else:
           #     llista_bool = "No"
           #     if(diccionario["score"] == '0'):

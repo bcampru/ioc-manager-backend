@@ -22,6 +22,7 @@ def add(a, csv, file):
             
             llista_type = iocs[a[0]]
             llista_value = a[1]
+            llista_campanya = a[2]
             diccionario = VT.virustotal(a)
 
             result = crowdstrike.crowd(diccionario, "detect", csv.filename)
@@ -37,7 +38,7 @@ def add(a, csv, file):
                 llista_comprovacio = iocs[a[0]] + " correctly added"
                 llista_bool="Yes"
 
-            return llista_type, llista_comprovacio, llista_value, llista_bool
+            return llista_type, llista_comprovacio, llista_value, llista_bool, llista_campanya
 
         return a[0], "Type Is Not Valid", a[1], "No"
 

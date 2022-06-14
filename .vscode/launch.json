@@ -7,7 +7,10 @@
       "type": "python",
       "request": "launch",
       "program": "C:/Python310/Scripts/waitress-serve.exe",
-      "args": ["--listen=localhost:8000", "app.src.app:app"],
+      "args": [
+        "--listen=localhost:8000",
+        "app.src.app:app"
+      ],
       "console": "integratedTerminal",
       "justMyCode": true
     }

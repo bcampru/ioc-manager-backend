@@ -44,6 +44,7 @@ def form():
                         llista_comprovacio=[a._result[1] for a in aux[0]]
                         llista_value=[a._result[2] for a in aux[0]]
                         llista_bool=[a._result[3] for a in aux[0]]
+                        llista_campanya = [a._result[4] for a in aux[0]]
                     except:
                         pass
                 
@@ -52,7 +53,8 @@ def form():
                 pagina = pd.DataFrame({'type': llista_type,
                    'value': llista_value,
                    'Added': llista_bool,
-                   'Description': llista_comprovacio 
+                   'Description': llista_comprovacio,
+                   'Campaign': llista_campanya 
                    })
                 
                 pagina.to_excel("data/resultat.xlsx")

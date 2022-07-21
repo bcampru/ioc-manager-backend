@@ -1,7 +1,7 @@
 image: docker:latest
 
 variables:
-    DOCKER_TLS_CERTDIR: "${CI_SERVER_TLS_CA_FILE}"
+    DOCKER_TLS_CERTDIR: ""
 
 build_prod:
     tags:
@@ -11,7 +11,7 @@ build_prod:
           command:
               - /bin/sh
               - -c
-              - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:5050 || exit
+              - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:8888 || exit
     stage: build
     script:
         - pwd

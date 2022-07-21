@@ -31,7 +31,7 @@ build_test:
           command:
               - /bin/sh
               - -c
-              - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:5050 || exit
+              - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:8888 || exit
     stage: build
     script:
         - pwd
@@ -51,7 +51,7 @@ deploy_prod:
           command:
               - /bin/sh
               - -c
-              - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:5050 || exit
+              - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:8888 || exit
     stage: deploy
     environment:
         name: production
@@ -72,7 +72,7 @@ deploy_test:
           command:
               - /bin/sh
               - -c
-              - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:5050 || exit
+              - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:8888 || exit
     stage: deploy
     environment:
         name: pre-production

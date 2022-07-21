@@ -1,7 +1,7 @@
 image: docker:latest
 
 variables:
-    DOCKER_TLS_CERTDIR: ""
+    DOCKER_TLS_CERTDIR: "${CI_SERVER_TLS_CA_FILE}"
 
 build_prod:
     tags:

@@ -6,4 +6,3 @@ pandas
 openpyxl
 python-dotenv
 futures==2.2.0
-tk-tools

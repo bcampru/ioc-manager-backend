@@ -1,82 +1,82 @@
 image: docker:latest
 
 variables:
-  DOCKER_TLS_CERTDIR: ""
+    DOCKER_TLS_CERTDIR: ""
 
 build_prod:
-  tags:
-    - job
-  services:
-    - name: docker:stable-dind
-      command:
-        - /bin/sh
-        - -c
-        - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:8888 || exit
-  stage: build
-  script:
-    - cp $CLARIANT ./app/src/.env
-    - docker login -u "gitlab-ci-token" -p "$CI_BUILD_TOKEN" $CI_REGISTRY
-    - docker build --cache-from $CI_REGISTRY_IMAGE:latest --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:latest .
-    - docker push $CI_REGISTRY_IMAGE
-  only:
-    - master
+    tags:
+        - job
+    services:
+        - name: docker:stable-dind
+          command:
+              - /bin/sh
+              - -c
+              - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:8888 || exit
+    stage: build
+    script:
+        - cp $CLARIANT ./app/src/.env
+        - docker login -u "gitlab-ci-token" -p "$CI_BUILD_TOKEN" $CI_REGISTRY
+        - docker build --cache-from $CI_REGISTRY_IMAGE:latest --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:latest .
+        - docker push $CI_REGISTRY_IMAGE
+    only:
+        - master
 
 build_test:
-  tags:
-    - job
-  services:
-    - name: docker:stable-dind
-      command:
-        - /bin/sh
-        - -c
-        - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:8888 || exit
-  stage: build
-  script:
-    - cp $NECSIA ./app/src/.env
-    - docker login -u "gitlab-ci-token" -p "$CI_BUILD_TOKEN" $CI_REGISTRY
-    - docker build --cache-from $CI_REGISTRY_IMAGE:test --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:test .
-    - docker push $CI_REGISTRY_IMAGE:test
-  except:
-    - master
+    tags:
+        - job
+    services:
+        - name: docker:stable-dind
+          command:
+              - /bin/sh
+              - -c
+              - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:8888 || exit
+    stage: build
+    script:
+        - cp $NECSIA ./app/src/.env
+        - docker login -u "gitlab-ci-token" -p "$CI_BUILD_TOKEN" $CI_REGISTRY
+        - docker build --cache-from $CI_REGISTRY_IMAGE:test --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:test .
+        - docker push $CI_REGISTRY_IMAGE:test
+    except:
+        - master
 
 deploy_prod:
-  tags:
-    - deploy
-  services:
-    - name: docker:stable-dind
-      command:
-        - /bin/sh
-        - -c
-        - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:8888 || exit
-  stage: deploy
-  environment:
-    name: production
-    url: http://10.1.1.156:5000/
-  script:
-    - docker login -u "gitlab-ci-token" -p "$CI_BUILD_TOKEN" $CI_REGISTRY
-    - docker pull $CI_REGISTRY_IMAGE:latest
-    - docker rm --force crowdstrike_production
-    - docker run -d --name crowdstrike_production -p 5000:5000 $CI_REGISTRY_IMAGE
-  only:
-    - master
+    tags:
+        - deploy
+    services:
+        - name: docker:stable-dind
+          command:
+              - /bin/sh
+              - -c
+              - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:8888 || exit
+    stage: deploy
+    environment:
+        name: production
+        url: http://10.1.1.156:5000/
+    script:
+        - docker login -u "gitlab-ci-token" -p "$CI_BUILD_TOKEN" $CI_REGISTRY
+        - docker pull $CI_REGISTRY_IMAGE:latest
+        - docker rm --force crowdstrike_production
+        - docker run -d --name crowdstrike_production -p 5000:5000 $CI_REGISTRY_IMAGE
+    only:
+        - master
 
 deploy_test:
-  tags:
-    - deploy
-  services:
-    - name: docker:stable-dind
-      command:
-        - /bin/sh
-        - -c
-        - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:8888 || exit
-  stage: deploy
-  environment:
-    name: pre-production
-    url: http://10.1.1.156:5050/
-  script:
-    - docker login -u "gitlab-ci-token" -p "$CI_BUILD_TOKEN" $CI_REGISTRY
-    - docker pull $CI_REGISTRY_IMAGE:test
-    - docker rm --force crowdstrike_test
-    - docker run -d --name crowdstrike_test -p 5050:5000 $CI_REGISTRY_IMAGE:test
-  except:
-    - master
+    tags:
+        - deploy
+    services:
+        - name: docker:stable-dind
+          command:
+              - /bin/sh
+              - -c
+              - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:8888 || exit
+    stage: deploy
+    environment:
+        name: pre-production
+        url: http://10.1.1.156:5050/
+    script:
+        - docker login -u "gitlab-ci-token" -p "$CI_BUILD_TOKEN" $CI_REGISTRY
+        - docker pull $CI_REGISTRY_IMAGE:test
+        - docker rm --force crowdstrike_test
+        - docker run -d --name crowdstrike_test -p 5050:5000 $CI_REGISTRY_IMAGE:test
+    except:
+        - master

@@ -5,5 +5,4 @@ crowdstrike-falconpy
 pandas
 openpyxl
 python-dotenv
-futures
-tk-tools
+futures==2.2.0

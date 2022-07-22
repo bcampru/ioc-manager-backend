@@ -1,37 +1,45 @@
+from pymisp import ExpandedPyMISP
+from pymisp import MISPEvent
+
 class misp_instance:
     def __init__(self, url, api_key) -> None:
         self.instance = ExpandedPyMISP(url, api_key, False)
+    
+    def parseTypes(self, type):
+        if "ip" in type:
+            return "domain|ip"
+        return type.lower().replace('-', '')
 
-    def getLevels(self):
-        high = self.instance.get_tag(1145)
-        low = self.instance.get_tag(1146)
-        medium = self.instance.get_tag(1147)
-        undefined = self.instance.get_tag(1148)
+    def setEvents(self, events):
+        self.events={}
+        for a in events.values:
+            try:
+                campaign=a[0]
+                if campaign in self.events.keys():
+                    self.events[campaign].from_dict(Event={'info':campaign, 'Attribute':[{"type":self.parseTypes(a[1]), "value":b, "to_ids": True} for b in a[2]]})
+                else:
+                    e=MISPEvent()
+                    e.from_dict(Event={'info':campaign, 'published':True, 'Attribute':[{"type":self.parseTypes(a[1]), "value":b, "to_ids": True} for b in a[2]]})
+                    e.add_tag(self.getTag())
+                    self.events[campaign]=e
+            except:
+                continue
 
-        return [high, medium, low, undefined]
+    def getTag(self):
+        IOC_CP = self.instance.get_tag(1044)
 
-    def getFilteredEvents(self, tagFilter, first_date=False):
-        if(first_date == False):
-            return self.instance.search(include_sightings=False, include_correlations=False, include_decay_score=False, controller='events', tags=tagFilter)
-        return self.instance.search(include_sightings=False, include_correlations=False, include_decay_score=False, controller='events', tags=tagFilter, date_from=first_date)
+        return IOC_CP
 
-    def getFilteredAttributes(self, first_date):
-        return self.instance.search(include_sightings=False, include_correlations=False, include_decay_score=False, limit=5, controller='attributes', date_from=first_date)
-
-    def push(self, events):
-        for event in events:
+    def push(self):
+        for event in self.events.values():
             self.instance.add_event(event)
 
     def createThreatLevelTag(self):
-        levels = self.getLevels()
+        tag = self.getTag()
 
-        filter = ['!ThreatLevel:low', '!ThreatLevel:medium',
-                  '!ThreatLevel:high', '!ThreatLevel:undefined']
-        events = self.getFilteredEvents(filter)
-
-        for event in events:
+        for event in self.events:
             event['Event']['Tag'].append(
-                levels[int(event["Event"]["threat_level_id"]) - 1])
+                tag - 1)
 
             event['Event']['timestamp'] = str(
                 int(event['Event']['timestamp'])+1)

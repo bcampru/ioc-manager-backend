@@ -6,6 +6,7 @@ import os
 from pandas import ExcelWriter
 import concurrent.futures
 from app.src import ThreadPool
+from app.src import misp
 
 
 app = Flask(__name__)
@@ -59,6 +60,17 @@ def form():
                 
                 pagina.to_excel("data/resultat.xlsx")
                 
+                #IMPLEMENTATION TO MISP
+                #Delete non CrowStrike IOCs
+                pagina.drop(pagina[pagina['Added'] == "No"].index, inplace = True)
+
+                #Transpose & delete innecessary columns
+                pagina=pagina.groupby(['Campaign', 'type'])['value'].apply(list).reset_index(name='events')
+
+                mispM = misp.misp_instance(os.getenv("misp_url"), os.getenv("misp_secret"))
+                mispM.setEvents(pagina)
+                mispM.push()
+
                 file.close()
 
             except :

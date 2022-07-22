@@ -6,6 +6,7 @@ import os
 from pandas import ExcelWriter
 import concurrent.futures
 from app.src import ThreadPool
+from app.src import misp
 
 
 app = Flask(__name__)
@@ -44,6 +45,7 @@ def form():
                         llista_comprovacio=[a._result[1] for a in aux[0]]
                         llista_value=[a._result[2] for a in aux[0]]
                         llista_bool=[a._result[3] for a in aux[0]]
+                        llista_campanya = [a._result[4] for a in aux[0]]
                     except:
                         pass
                 
@@ -52,11 +54,23 @@ def form():
                 pagina = pd.DataFrame({'type': llista_type,
                    'value': llista_value,
                    'Added': llista_bool,
-                   'Description': llista_comprovacio 
+                   'Description': llista_comprovacio,
+                   'Campaign': llista_campanya 
                    })
                 
                 pagina.to_excel("data/resultat.xlsx")
                 
+                #IMPLEMENTATION TO MISP
+                #Delete non CrowStrike IOCs
+                pagina.drop(pagina[pagina['Added'] == "No"].index, inplace = True)
+
+                #Transpose & delete innecessary columns
+                pagina=pagina.groupby(['Campaign', 'type'])['value'].apply(list).reset_index(name='events')
+
+                mispM = misp.misp_instance(os.getenv("misp_url"), os.getenv("misp_secret"))
+                mispM.setEvents(pagina)
+                mispM.push()
+
                 file.close()
 
             except :
@@ -117,7 +131,11 @@ def actualitza():
                 with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
                      
                     try:
+<<<<<<< HEAD
                         #future_result={ThreadPool.update_concurrent(a, csv, file, request.form['action']) for a in df.values}
+=======
+                        future_result={ThreadPool.update_concurrent(a, csv, file, request.form['action'])  for a in df.values}
+>>>>>>> PRE
                         future_result={executor.submit(ThreadPool.update_concurrent, a, csv, file, request.form['action']) for a in df.values}
                         aux=concurrent.futures.wait(future_result, None)
                         llista_type=[a._result[0] for a in aux[0]]
@@ -170,8 +188,12 @@ def update():
 @app.route("/")
 def main():
     os.chdir(app.root_path)
+<<<<<<< HEAD
     val = os.getenv("logo")
     return render_template('index.html', var=val)
+=======
+    return render_template('index.html', var=os.getenv("logo"))
+>>>>>>> PRE
 
 if __name__ == "__main__":
     app.run()

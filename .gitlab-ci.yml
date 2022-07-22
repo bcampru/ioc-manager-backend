@@ -13,10 +13,11 @@ build_prod:
               - -c
               - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:8888 || exit
     stage: build
+    environment:
+        name: production
+        url: http://10.1.1.156:5000/
     script:
-        - pwd
         - cp $CLARIANT ./app/src/.env
-        - ls -la ./app/src/
         - docker login -u "gitlab-ci-token" -p "$CI_BUILD_TOKEN" $CI_REGISTRY
         - docker build --cache-from $CI_REGISTRY_IMAGE:latest --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:latest .
         - docker push $CI_REGISTRY_IMAGE
@@ -33,10 +34,11 @@ build_test:
               - -c
               - dockerd-entrypoint.sh --insecure-registry 10.1.1.159:8888 || exit
     stage: build
+    environment:
+        name: pre-production
+        url: http://10.1.1.156:5050/
     script:
-        - pwd
         - cp $NECSIA ./app/src/.env
-        - ls -la ./app/src/
         - docker login -u "gitlab-ci-token" -p "$CI_BUILD_TOKEN" $CI_REGISTRY
         - docker build --cache-from $CI_REGISTRY_IMAGE:test --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:test .
         - docker push $CI_REGISTRY_IMAGE:test

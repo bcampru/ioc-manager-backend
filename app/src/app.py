@@ -57,12 +57,12 @@ def form():
                                        'Campaign': llista_campanya
                                        })
 
-                #Separate Campaign - IOC 
+                # Separate Campaign - IOC
                 var = pagina["Campaign"].str.split("-", expand=True)
                 pagina["Campaign"] = var[0].str.strip()
 
                 # var.shape = [row,col]
-                if(var.shape[1]<1):
+                if(var.shape[1] == 2):
                     pagina["Description"] = var[1].str.strip()
                 else:
                     pagina["Description"] = ""
@@ -70,10 +70,10 @@ def form():
 ########################################################################################################
                 # TODO
                 # 1.
-                # La campaña i la descripcio ja estan ficadas al dataframe, falta fer el group by amb 
-                # la columna de descripcio tmb per llavors poderla ficar al misp. 
+                # La campaña i la descripcio ja estan ficadas al dataframe, falta fer el group by amb
+                # la columna de descripcio tmb per llavors poderla ficar al misp.
                 # MODIFICAR group by i la func setEvents.
-                # 
+                #
                 # 2.
                 # Ficar el Threat level si volem ficar de moment algun score
 ########################################################################################################
@@ -86,7 +86,7 @@ def form():
                             "No"].index, inplace=True)
 
                 # Transpose & delete innecessary columns
-                pagina = pagina.groupby(['Campaign', 'type'])[
+                pagina = pagina.groupby(['Campaign', 'type', 'Description'])[
                     'value'].apply(list).reset_index(name='events')
 
                 mispM = misp.misp_instance(

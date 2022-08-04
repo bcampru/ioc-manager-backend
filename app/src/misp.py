@@ -13,17 +13,25 @@ class misp_instance:
 
     def setEvents(self, events):
         self.events = {}
+        aux = {event['info']: event for event in self.instance.events()}
+        self.updates = []
         for a in events.values:
             try:
                 campaign = a[0]
                 if campaign in self.events.keys():
-                    self.events[campaign].from_dict(Event={'info': campaign, 'Attribute': [
+                    self.events[campaign].from_dict(Event={'info': campaign, 'published': True, 'Attribute': [
                                                     {"type": self.parseTypes(a[1]), "value":b, "to_ids": True, "comment":a[2]} for b in a[3]]})
                 else:
                     e = MISPEvent()
-                    e.from_dict(Event={'info': campaign, 'published': True, 'Attribute': [
-                                {"type": self.parseTypes(a[1]), "value":b, "to_ids": True, "comment":a[2]} for b in a[3]]})
-                    e.add_tag(self.getTag())
+                    if(campaign in aux.keys()):
+                        e.from_dict(Event=aux[campaign])
+                        [e.add_attribute(type=self.parseTypes(
+                            a[1]), value=b, comment=a[2]) for b in a[3]]
+                        self.updates.append(campaign)
+                    else:
+                        e.from_dict(Event={'info': campaign, 'published': True, 'Attribute': [
+                                    {"type": self.parseTypes(a[1]), "value":b, "to_ids": True, "comment":a[2]} for b in a[3]]})
+                        e.add_tag(self.getTag())
                     self.events[campaign] = e
             except:
                 continue
@@ -35,7 +43,10 @@ class misp_instance:
 
     def push(self):
         for event in self.events.values():
-            self.instance.add_event(event)
+            if event['info'] in self.updates:
+                self.instance.update_event(event)
+            else:
+                self.instance.add_event(event)
 
     def createThreatLevelTag(self):
         tag = self.getTag()

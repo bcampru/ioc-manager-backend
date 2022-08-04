@@ -60,7 +60,7 @@ def form():
                 # Separate Campaign - IOC
                 var = pagina["Campaign"].str.split("-", expand=True)
                 pagina["Campaign"] = var[0].str.strip()
-
+                pagina["Campaign"].replace('', 'Cyberproof_CTI', inplace=True)
                 # var.shape = [row,col]
                 if(var.shape[1] == 2):
                     pagina["Description"] = var[1].str.strip()
@@ -69,12 +69,6 @@ def form():
 
 ########################################################################################################
                 # TODO
-                # 1.
-                # La campaña i la descripcio ja estan ficadas al dataframe, falta fer el group by amb
-                # la columna de descripcio tmb per llavors poderla ficar al misp.
-                # MODIFICAR group by i la func setEvents.
-                #
-                # 2.
                 # Ficar el Threat level si volem ficar de moment algun score
 ########################################################################################################
 
@@ -82,10 +76,11 @@ def form():
 
                 # IMPLEMENTATION TO MISP
                 # Delete non CrowStrike IOCs
-                pagina.drop(pagina[pagina['Added'] ==
-                            "No"].index, inplace=True)
+                # pagina.drop(pagina[pagina['Added'] ==
+                #            "No"].index, inplace=True)
 
                 # Transpose & delete innecessary columns
+                pagina["Description"].fillna('', inplace=True)
                 pagina = pagina.groupby(['Campaign', 'type', 'Description'])[
                     'value'].apply(list).reset_index(name='events')
 

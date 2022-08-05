@@ -22,10 +22,8 @@ def load():
             with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
 
                 try:
-                    #future_result={ThreadPool.add(a, csv, file)  for a in df.values}
                     results = {executor.submit(
                         ThreadPool.add, a, filename, file) for a in df.values}
-                    #aux = concurrent.futures.wait(future_result, None)
                     yield "{\"total\": %d}\n" % (len(df.values))
                     aux = []
                     for result in concurrent.futures.as_completed(results):
@@ -50,7 +48,6 @@ def load():
             var = pagina["Campaign"].str.split(" - ", expand=True)
             pagina["Campaign"] = var[0].str.strip()
             pagina["Campaign"].replace('', 'Cyberproof_CTI', inplace=True)
-            # var.shape = [row,col]
             if(var.shape[1] == 2):
                 pagina["Description"] = var[1].str.strip()
             else:
@@ -118,7 +115,6 @@ def elimina():
 
                 with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
                     try:
-                        #future_result={ThreadPool.delete_concurrent(a)  for a in df.values}
                         future_result = {executor.submit(
                             ThreadPool.delete_concurrent, a) for a in df.values}
                         aux = concurrent.futures.wait(future_result, None)

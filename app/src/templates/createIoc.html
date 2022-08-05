@@ -1,26 +1,41 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="utf-8">
-  <title>HTML</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="{{ url_for('static', filename='app.css')}}" rel="stylesheet" type="text/css">
-</head>
+	<head>
+		<meta charset="utf-8" />
+		<title>HTML</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link
+			href="{{ url_for('static', filename='app.css')}}"
+			rel="stylesheet"
+			type="text/css"
+		/>
+	</head>
+	<style>
+		#myProgress {
+			width: 100%;
+			background-color: #ddd;
+		}
 
-<body>
+		#myBar {
+			width: 0%;
+			height: 30px;
+			background-color: #04aa6d;
+			text-align: center;
+			line-height: 30px;
+			color: white;
+		}
+	</style>
+	<body>
+		<form class="titol">
+			<h1>Create the IOCs to Crowd</h1>
+			<br />
 
-  
-    <form action="/form" method="POST" class="titol" enctype="multipart/form-data">
-        <h1>Create the IOCs to Crowd</h1>
-        <br>
-
-        <div class="container">
-            <input type="file" name="file" class="upload"> 
-            <br>
-        </div>
-        <br><br>
-        <input type="submit" value="Submit" id/>
-    </form>
-
-</body>
+			<div class="container" id="content">
+				<input id="input" type="file" name="file" class="upload" />
+				<br />
+				<br /><br />
+				<button id="start" class="boto">Load IOCs</button>
+			</div>
+		</form>
+	</body>
 </html>

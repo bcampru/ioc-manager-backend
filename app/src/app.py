@@ -29,7 +29,7 @@ def form():
                 csv = request.files['file']
 
                 if 'csv' in csv.filename:
-                    df = pd.read_csv(csv)
+                    df = pd.read_csv(csv, encoding='latin1')
                 else:
                     df = pd.read_excel(csv)
 
@@ -58,7 +58,7 @@ def form():
                                        })
 
                 # Separate Campaign - IOC
-                var = pagina["Campaign"].str.split("-", expand=True)
+                var = pagina["Campaign"].str.split(" - ", expand=True)
                 pagina["Campaign"] = var[0].str.strip()
                 pagina["Campaign"].replace('', 'Cyberproof_CTI', inplace=True)
                 # var.shape = [row,col]
@@ -74,6 +74,7 @@ def form():
 
                 pagina.to_excel("data/resultat.xlsx")
 
+                pagina = pagina[pagina.value != '']
                 # IMPLEMENTATION TO MISP
                 # Delete non CrowStrike IOCs
                 # pagina.drop(pagina[pagina['Added'] ==

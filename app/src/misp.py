@@ -8,7 +8,7 @@ class misp_instance:
 
     def parseTypes(self, type):
         if "ip" in type:
-            return "domain|ip"
+            return "ip-src"
         return type.lower().replace('-', '')
 
     def setEvents(self, events):

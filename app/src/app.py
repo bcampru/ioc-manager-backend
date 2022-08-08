@@ -100,110 +100,104 @@ def load():
             return Response(gen(df, csv.filename))
 
 
-@app.route('/form_delete', methods=['POST'])
+@app.route('/delete', methods=['POST'])
 def elimina():
+    def gen(df):
+        with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
+            results = {executor.submit(
+                ThreadPool.delete_concurrent, a) for a in df.values}
+            yield "{\"total\": %d}\n" % (len(df.values))
+            time.sleep(1)
+            aux = []
+            for result in concurrent.futures.as_completed(results):
+                aux.append(result.result())
+                yield "{\"progress\": %d}\n" % (len(aux))
+            time.sleep(1)
+            yield "{\"finished\": \"IOCs Deleted!!\"}\n"
+
     if request.method == 'POST':
         if 'file' not in request.files:
-            return render_template('deleteIoc.html')
-
+            return Response("{\"error\": \"You need to provide a file!\"}\n")
         else:
             try:
-
                 csv = request.files['file']
                 if 'csv' in csv.filename:
                     df = pd.read_csv(csv)
                 else:
                     df = pd.read_excel(csv)
-
-                with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
-                    try:
-                        future_result = {executor.submit(
-                            ThreadPool.delete_concurrent, a) for a in df.values}
-                        aux = concurrent.futures.wait(future_result, None)
-                    except:
-                        pass
-
+                return Response(gen(df))
             except:
-                return render_template('error.html')
-
-            return render_template('index.html')
+                return Response("{\"error\": \"Invalid file format\"}\n")
 
 
 @app.route('/update', methods=['POST'])
 def actualitza():
-    if request.method == 'POST':
+    def gen(df, filename, action):
+        file = open("data/resultat_hash.txt", "w")
+        with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
+            try:
+                results = {executor.submit(
+                    ThreadPool.update_concurrent, a, filename, file, action) for a in df.values}
+                yield "{\"total\": %d}\n" % (len(df.values))
+                time.sleep(1)
+                aux = []
+                for result in concurrent.futures.as_completed(results):
+                    aux.append(result.result())
+                    yield "{\"progress\": %d}\n" % (len(aux))
+                llista_type = [a[0] for a in aux]
+                llista_comprovacio = [a[1] for a in aux]
+                llista_value = [a[2] for a in aux]
+                llista_bool = [a[3] for a in aux]
+            except:
+                pass
+        pagina = pd.DataFrame({'type': llista_type,
+                               'value': llista_value,
+                               'Updated': llista_bool,
+                               'Description': llista_comprovacio
+                               })
+        pagina.to_excel("data/resultat.xlsx")
+        file.close()
+        yield "{\"finished\": \"IOCs Updated!!\"}\n"
 
-        print(request.files['file'])
+    if request.method == 'POST':
         os.chdir(app.root_path)
         if 'file' not in request.files:
-            return render_template('updateIoc.html')
-
+            return Response("{\"error\": \"You need to provide a file!\"}\n")
         else:
-
             try:
-
                 csv = request.files['file']
                 if 'csv' in csv.filename:
                     df = pd.read_csv(csv)
                 else:
                     df = pd.read_excel(csv)
-
-                file = open("data/resultat_hash.txt", "w")
-
-                with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
-
-                    try:
-                        future_result = {ThreadPool.update_concurrent(
-                            a, csv, file, request.form['action']) for a in df.values}
-                        future_result = {executor.submit(
-                            ThreadPool.update_concurrent, a, csv, file, request.form['action']) for a in df.values}
-                        aux = concurrent.futures.wait(future_result, None)
-                        llista_type = [a._result[0] for a in aux[0]]
-                        llista_comprovacio = [a._result[1] for a in aux[0]]
-                        llista_value = [a._result[2] for a in aux[0]]
-                        llista_bool = [a._result[3] for a in aux[0]]
-                    except:
-                        pass
-
-                pagina = pd.DataFrame({'type': llista_type,
-                                       'value': llista_value,
-                                       'Updated': llista_bool,
-                                       'Description': llista_comprovacio
-                                       })
-
-                pagina.to_excel("data/resultat.xlsx")
-
-                file.close()
-
+                return Response(gen(df, csv.filename, request.form['action']))
             except:
-                return render_template('error.html')
-
-            return render_template('confirmar.html')
+                return Response("{\"error\": \"Invalid file format\"}\n")
 
 
-@app.route('/excel', methods=['GET', 'POST'])
+@app.route('/getExcel', methods=['GET', 'POST'])
 def download_excel():
     path = app.root_path + "//data//resultat.xlsx"
     return send_file(path, as_attachment=True)
 
 
-@app.route('/text', methods=['GET', 'POST'])
+@app.route('/getText', methods=['GET', 'POST'])
 def download_text():
     path = app.root_path + "//data//resultat_hash.txt"
     return send_file(path, as_attachment=True)
 
 
-@app.route("/addIoc")
+@app.route("/addIocTemplate")
 def create():
     return render_template('createIoc.html')
 
 
-@app.route("/deleteIoc")
+@app.route("/deleteIocTemplate")
 def delete():
     return render_template('deleteIoc.html')
 
 
-@app.route("/updateIoc")
+@app.route("/updateIocTemplate")
 def update():
     return render_template('updateIoc.html')
 

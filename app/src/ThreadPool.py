@@ -52,7 +52,7 @@ def add(a, filename, file):
         return a[0], "No", a[1], "IOC Malformed", ""
 
 
-def update_concurrent(a, csv, file, action):
+def update_concurrent(a, filename, file, action):
     try:
         # Conversations
         a[0] = a[0].replace("-", "") if(type(a[2]) != float) else ""
@@ -80,7 +80,7 @@ def update_concurrent(a, csv, file, action):
             llista_campanya = a[2]
             diccionario = VT.virustotal(a)
 
-            result = crowdstrike.crowd(diccionario, action, csv.filename)
+            result = crowdstrike.crowd(diccionario, action, filename)
 
             if(int(result) == 0):
                 llista_bool = "No"

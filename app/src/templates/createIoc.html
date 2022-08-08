@@ -10,21 +10,7 @@
 			type="text/css"
 		/>
 	</head>
-	<style>
-		#myProgress {
-			width: 100%;
-			background-color: #ddd;
-		}
 
-		#myBar {
-			width: 0%;
-			height: 30px;
-			background-color: #04aa6d;
-			text-align: center;
-			line-height: 30px;
-			color: white;
-		}
-	</style>
 	<body>
 		<form class="titol">
 			<h1>Create the IOCs to Crowd</h1>
@@ -37,5 +23,83 @@
 				<button id="start" class="boto">Load IOCs</button>
 			</div>
 		</form>
+		<script>
+			function sendReq() {
+				const btnEl = document.getElementById("start");
+				const fileInput = document.getElementById("input");
+				var file = "";
+
+				fileInput.onchange = () => {
+					file = fileInput.files[0];
+				};
+
+				btnEl.addEventListener("click", function (e) {
+					if (file == "") {
+						alert("Please select a file");
+						return;
+					}
+					let prevBufferEnd = 0;
+					let total = 0;
+					let div = document.getElementById("content");
+					div.innerHTML = "";
+					let myProgress = document.createElement("div");
+					let myBar = document.createElement("div");
+					myProgress.id = "myProgress";
+					myBar.id = "myBar";
+					myProgress.appendChild(myBar);
+					div.appendChild(myProgress);
+
+					const xhr = new XMLHttpRequest();
+
+					xhr.addEventListener("progress", function (e) {
+						let currentProgress =
+							e.currentTarget.responseText.substring(
+								prevBufferEnd,
+								e.currentTarget.responseText.length
+							);
+						prevBufferEnd = e.currentTarget.responseText.length;
+						const respData = JSON.parse(currentProgress);
+
+						if (respData) {
+							if (respData["total"]) {
+								total = respData.total;
+							} else if (respData["progress"]) {
+								const { progress } = respData;
+								const percent = (progress / total) * 100;
+								var elem = document.getElementById("myBar");
+								elem.style.width = percent.toFixed(1) + "%";
+								elem.innerHTML = percent.toFixed(1) + "%";
+							} else if (respData["finished"]) {
+								var div = document.getElementById("content");
+								var excel = document.createElement("a");
+								excel.href = "/getExcel";
+								excel.type = "button";
+								excel.innerHTML = "Download Excel";
+								excel.classList.add("boto");
+								var text = document.createElement("a");
+								text.href = "/getText";
+								text.type = "button";
+								text.innerHTML = "Download Excel";
+								text.classList.add("boto");
+								div.innerHTML = "";
+								div.appendChild(excel);
+								div.appendChild(document.createElement("br"));
+								div.appendChild(text);
+							} else if (respData["error"]) {
+								alert(respData.error);
+							}
+						}
+					});
+
+					xhr.addEventListener("loadend", function (e) {
+						btnEl.disabled = false;
+					});
+					var formData = new FormData();
+					formData.append("file", file);
+					xhr.open("post", "/load");
+					xhr.send(formData);
+				});
+			}
+		</script>
 	</body>
 </html>

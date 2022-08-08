@@ -7,6 +7,7 @@ from pandas import ExcelWriter
 import concurrent.futures
 from app.src import ThreadPool
 from app.src import misp
+import time
 
 
 app = Flask(__name__)
@@ -25,6 +26,7 @@ def load():
                     results = {executor.submit(
                         ThreadPool.add, a, filename, file) for a in df.values}
                     yield "{\"total\": %d}\n" % (len(df.values))
+                    time.sleep(1)
                     aux = []
                     for result in concurrent.futures.as_completed(results):
                         aux.append(result.result())

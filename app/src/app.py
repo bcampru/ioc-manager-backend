@@ -46,6 +46,7 @@ def load():
                                    'Campaign': llista_campanya
                                    })
 
+            pagina.to_excel("data/resultat.xlsx")
             # Separate Campaign - IOC
             var = pagina["Campaign"].str.split(" - ", expand=True)
             pagina["Campaign"] = var[0].str.strip()
@@ -59,8 +60,6 @@ def load():
             # TODO
             # Ficar el Threat level si volem ficar de moment algun score
 ########################################################################################################
-
-            pagina.to_excel("data/resultat.xlsx")
 
             pagina = pagina[pagina.value != '']
             # IMPLEMENTATION TO MISP

@@ -166,7 +166,7 @@ def actualitza():
             try:
                 csv = request.files['file']
                 if 'csv' in csv.filename:
-                    df = pd.read_csv(csv)
+                    df = pd.read_csv(csv, encoding='latin1')
                 else:
                     df = pd.read_excel(csv)
                 return Response(gen(df, csv.filename, request.form['action']))

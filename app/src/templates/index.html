@@ -1,60 +1,97 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="utf-8">
-  <title>HTML</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-  <link href="{{ url_for('static', filename='index.css')}}" rel="stylesheet" type="text/css">
-  <link href="{{ url_for('static', filename='app.css')}}" rel="stylesheet" type="text/css">
-</head>
+	<head>
+		<meta charset="utf-8" />
+		<title>HTML</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+		<link
+			href="{{ url_for('static', filename='index.css')}}"
+			rel="stylesheet"
+			type="text/css"
+		/>
+		<link
+			href="{{ url_for('static', filename='app.css')}}"
+			rel="stylesheet"
+			type="text/css"
+		/>
+		<style>
+			#myProgress {
+				width: 100%;
+				background-color: #ddd;
+			}
 
-<body>
-    <header class="header-area" id="grad">
-        <div class="container">
-            <div class="logo"><img src="https://3ei3k8uli3v1mr8hvp9a1hq5-wpengine.netdna-ssl.com/wp-content/uploads/2019/02/CyberProod_logo_RGB_color_Horizontal.png" alt="Logo"></div>
-            <div class="company"><h1> {{ var }} </h1></div>
-            <nav class="menu">
-                <ul>
-                    <li><button class="boto" id="home">HOME</button></li>
-                    <li><button class="boto" id="add">Add IOCs</button></li>
-                    <li><button class="boto" id="update">Update IOCs</button></li>
-                    <li><button class="boto" id="delete">Delete IOCs</button></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
+			#myBar {
+				width: 0%;
+				height: 30px;
+				background-color: #04aa6d;
+				text-align: center;
+				line-height: 30px;
+				color: white;
+			}
+		</style>
+	</head>
 
-    <div id="show"></div>
+	<body>
+		<header class="header-area" id="grad">
+			<div class="container">
+				<div class="logo">
+					<img
+						src="https://3ei3k8uli3v1mr8hvp9a1hq5-wpengine.netdna-ssl.com/wp-content/uploads/2019/02/CyberProod_logo_RGB_color_Horizontal.png"
+						alt="Logo"
+					/>
+				</div>
+				<div class="company"><h1>{{ var }}</h1></div>
+				<nav class="menu">
+					<ul>
+						<li><button class="boto" id="add">Add IOCs</button></li>
+						<li>
+							<button class="boto" id="update">
+								Update IOCs
+							</button>
+						</li>
+						<li>
+							<button class="boto" id="delete">
+								Delete IOCs
+							</button>
+						</li>
+					</ul>
+				</nav>
+			</div>
+		</header>
 
+		<div id="show"></div>
 
-
-    <script type="text/javascript">
-        $(document).ready(function(){
-            $('#home').click(function (){
-                $('#show').hide().load('/addIoc', function(){
-                    console.log('Load completed!');
-                }).fadeIn(1000);
-            });
-            $('#add').click(function (){
-                $('#show').hide().load('/addIoc', function(){
-                    console.log('Load completed!');
-                }).fadeIn(1000);
-            });
-            $('#delete').click(function (){
-                $('#show').hide().load('/deleteIoc', function(){
-                    console.log('Load completed!');
-                }).fadeIn(1000);
-            });
-            $('#update').click(function (){
-                $('#show').hide().load('/updateIoc', function(){
-                    console.log('Load completed!');
-                }).fadeIn(1000);
-            });
-        });
-    </script>
-
-</body>
-
-
+		<script type="text/javascript">
+			$(document).ready(function () {
+				$("#add").click(function () {
+					$("#show")
+						.hide()
+						.load("/addIocTemplate", function () {
+							console.log("Load completed!");
+							sendReq();
+						})
+						.fadeIn(1000);
+				});
+				$("#delete").click(function () {
+					$("#show")
+						.hide()
+						.load("/deleteIocTemplate", function () {
+							console.log("Load completed!");
+							sendReq();
+						})
+						.fadeIn(1000);
+				});
+				$("#update").click(function () {
+					$("#show")
+						.hide()
+						.load("/updateIocTemplate", function () {
+							console.log("Load completed!");
+							sendReq();
+						})
+						.fadeIn(1000);
+				});
+			});
+		</script>
+	</body>
 </html>

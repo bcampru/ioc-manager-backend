@@ -4,19 +4,18 @@ import os
 import re
 
 
-def add(a, csv, file):
+def add(a, filename, file):
     try:
-        #Conversations
+        # Conversations
         a[0] = a[0].replace("-", "") if(type(a[2]) != float) else ""
         a[1] = a[1].replace("[", "") if(type(a[2]) != float) else ""
         a[1] = a[1].replace("]", "") if(type(a[2]) != float) else ""
-        a[0] = a[0].lower() 
+        a[0] = a[0].lower()
         a[1] = a[1].lower()
         a[2] = a[2].replace("[", "") if(type(a[2]) != float) else ""
         a[2] = a[2].replace("]", "") if(type(a[2]) != float) else ""
-        
-        iocs = {"sha256": "sha256", "md5": "md5", "domain": "domain", "ipv4": "ipv4", "ipv6": "ipv6", "url": [
-            "ipv4", "domain"], "ip address": "ipv4", "ipv4 address": "ipv4", "ipv6 address": "ipv6", "ip": "ipv4"}
+
+        iocs = {"sha256": "sha256", "md5": "md5", "domain": "domain", "ipv4": "ipv4", "ipv6": "ipv6", "url": "url", "ip address": "ipv4", "ipv4 address": "ipv4", "ipv6 address": "ipv6", "ip": "ipv4"}
 
         if(a[0] in iocs):
             # Comprovar que existeix alguna IP
@@ -30,7 +29,7 @@ def add(a, csv, file):
             llista_campanya = a[2]
             diccionario = VT.virustotal(a)
 
-            result = crowdstrike.crowd(diccionario, "detect", csv.filename)
+            result = crowdstrike.crowd(diccionario, "detect", filename)
 
             if(int(result["status_code"]) >= 400):
                 llista_bool = "No"
@@ -52,17 +51,17 @@ def add(a, csv, file):
         return a[0], "No", a[1], "IOC Malformed", ""
 
 
-def update_concurrent(a, csv, file, action):
+def update_concurrent(a, filename, file, action):
     try:
-        #Conversations
+        # Conversations
         a[0] = a[0].replace("-", "") if(type(a[2]) != float) else ""
         a[1] = a[1].replace("[", "") if(type(a[2]) != float) else ""
         a[1] = a[1].replace("]", "") if(type(a[2]) != float) else ""
-        a[0] = a[0].lower() 
+        a[0] = a[0].lower()
         a[1] = a[1].lower()
         a[2] = a[2].replace("[", "") if(type(a[2]) != float) else ""
         a[2] = a[2].replace("]", "") if(type(a[2]) != float) else ""
-        
+
         iocs = {"sha256": "sha256", "md5": "md5", "domain": "domain", "ipv4": "ipv4", "ipv6": "ipv6", "url": [
             "ipv4", "domain"], "ip address": "ipv4", "ipv4 address": "ipv4", "ipv6 address": "ipv6", "ip": "ipv4"}
 
@@ -80,7 +79,7 @@ def update_concurrent(a, csv, file, action):
             llista_campanya = a[2]
             diccionario = VT.virustotal(a)
 
-            result = crowdstrike.crowd(diccionario, action, csv.filename)
+            result = crowdstrike.crowd(diccionario, action, filename)
 
             if(int(result) == 0):
                 llista_bool = "No"

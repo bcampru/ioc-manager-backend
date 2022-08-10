@@ -2,9 +2,18 @@ import requests
 import json
 import ipaddress
 from app.src import converter
+import numpy as np
+
 
 def virustotal(input):
-    dic = {'sha256': "files/",'md5': "files/", 'url': "urls/", 'domain': "domains/", "ipv4": "ip_addresses/"}
+
+    if(len(input) == 2):
+        input = np.append(input, ["", ""])
+    if(len(input) == 3):
+        input = np.append(input, "")
+
+    dic = {'sha256': "files/", 'md5': "files/", 'url': "urls/",
+           'domain': "domains/", "ipv4": "ip_addresses/"}
 
     variable = dic[input[0]]
 
@@ -22,30 +31,29 @@ def virustotal(input):
     try:
         dict_web = r['data']['attributes']['last_analysis_results']
 
-
         max_detect = 0
         score = 0
         tipo = []
         herramientas = []
-        
+
         for i in dict_web:
             max_detect += 1
             if dict_web[i]["category"] == "malicious" or dict_web[i]["category"] == "suspicious":
                 tipo.append(dict_web[i]["result"])
                 herramientas.append(dict_web[i]["engine_name"])
                 score += 1
-            
+
         tipo = set(tipo)
 
         overall = score / max_detect
 
-        if(overall>0.9):
+        if(overall > 0.9):
             severity = "critical"
         else:
-            if(overall>0.30):
+            if(overall > 0.30):
                 severity = "high"
             else:
-                if(overall>0.05):
+                if(overall > 0.05):
                     severity = "medium"
                 else:
                     severity = "none"
@@ -60,14 +68,14 @@ def virustotal(input):
         diccionario = {
             "type": input[0],
             "value": input[1],
-            "score" : str(score),
-            "total" : str(max_detect),
-            "mark" : list(tipo),
-            "antiVir" : str(herramientas)[1:-1].lower(),
-            "overall" : overall,
-            "severity" : severity,
-            "description" : input[2],
-            "source" : input[3],
+            "score": str(score),
+            "total": str(max_detect),
+            "mark": list(tipo),
+            "antiVir": str(herramientas)[1:-1].lower(),
+            "overall": overall,
+            "severity": severity,
+            "description": input[2],
+            "source": input[3],
             "name": name,
             "expiration": cambio.converter()
         }
@@ -76,14 +84,13 @@ def virustotal(input):
         diccionario = {
             "type": input[0],
             "value": input[1],
-            "description" : input[2],
-            "source" : input[3],
-            "score" : "-1",
+            "description": input[2],
+            "source": input[3],
+            "score": "-1",
             "expiration": cambio.converter(),
             "severity": "Informational",
-            "mark" : ["VT not found"],
+            "mark": ["VT not found"],
             "name": input[1]
         }
-        
-    return diccionario
 
+    return diccionario

@@ -15,7 +15,8 @@ def add(a, filename, file):
         a[2] = a[2].replace("[", "") if(type(a[2]) != float) else ""
         a[2] = a[2].replace("]", "") if(type(a[2]) != float) else ""
 
-        iocs = {"sha256": "sha256", "md5": "md5", "domain": "domain", "ipv4": "ipv4", "ipv6": "ipv6", "url": "url", "ip address": "ipv4", "ipv4 address": "ipv4", "ipv6 address": "ipv6", "ip": "ipv4"}
+        iocs = {"sha256": "sha256", "md5": "md5", "domain": "domain", "ipv4": "ipv4", "ipv6": "ipv6",
+                "url": "url", "ip address": "ipv4", "ipv4 address": "ipv4", "ipv6 address": "ipv6", "ip": "ipv4"}
 
         if(a[0] in iocs):
             # Comprovar que existeix alguna IP
@@ -79,7 +80,7 @@ def update_concurrent(a, filename, file, action):
             llista_campanya = a[2]
             diccionario = VT.virustotal(a)
 
-            result = crowdstrike.crowd(diccionario, action, filename)
+            result = crowdstrike.updateIoc(diccionario, action, filename)
 
             if(int(result) == 0):
                 llista_bool = "No"

@@ -12,13 +12,14 @@ app.config['MAX_CONTENT_LENGHT'] = 16*1000*1000*1000
 
 
 def transform(a):
-    a[0] = a[0].replace("-", "") if(type(a[2]) != float) else ""
-    a[1] = a[1].replace("[", "") if(type(a[2]) != float) else ""
-    a[1] = a[1].replace("]", "") if(type(a[2]) != float) else ""
+    a[0] = a[0].replace("-", "") if(type(a[0]) != float) else ""
+    a[1] = a[1].replace("[", "") if(type(a[1]) != float) else ""
+    a[1] = a[1].replace("]", "") if(type(a[1]) != float) else ""
     a[0] = a[0].lower()
     a[1] = a[1].lower()
     a[2] = a[2].replace("[", "") if(type(a[2]) != float) else ""
     a[2] = a[2].replace("]", "") if(type(a[2]) != float) else ""
+    a[3] = a[3] if(type(a[3]) != float) else ""
     return a
 
 
@@ -31,7 +32,7 @@ def load():
             with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
 
                 try:
-                    df.apply(transform, axis=1)
+                    df = df.apply(transform, axis=1)
                     results = {executor.submit(
                         ThreadPool.add, a, filename, file) for a in df.values}
                     yield "{\"total\": %d}\n" % (len(df.values))
@@ -104,7 +105,7 @@ def load():
 def elimina():
     def gen(df):
         with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
-            df.apply(transform, axis=1)
+            df = df.apply(transform, axis=1)
             results = {executor.submit(
                 ThreadPool.delete_concurrent, a) for a in df.values}
             yield "{\"total\": %d}\n" % (len(df.values))
@@ -137,7 +138,7 @@ def actualitza():
         file = open("data/resultat_hash.txt", "w")
         with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
             try:
-                df.apply(transform, axis=1)
+                df = df.apply(transform, axis=1)
                 results = {executor.submit(
                     ThreadPool.update_concurrent, a, filename, file, action) for a in df.values}
                 yield "{\"total\": %d}\n" % (len(df.values))

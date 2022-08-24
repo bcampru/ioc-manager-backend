@@ -74,8 +74,8 @@ def virustotal(input):
             "antiVir": str(herramientas)[1:-1].lower(),
             "overall": overall,
             "severity": severity,
-            "description": input[2],
-            "source": input[3],
+            "description": str(input[2]),
+            "source": str(input[3]),
             "name": name,
             "expiration": cambio.converter()
         }

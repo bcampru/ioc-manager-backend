@@ -7,7 +7,7 @@ class misp_instance:
         self.instance = ExpandedPyMISP(url, api_key, False)
 
     def parseTypes(self, type):
-        if "ip" in type:
+        if "ip" in type.lower():
             return "ip-src"
         return type.lower().replace('-', '')
 
@@ -15,6 +15,7 @@ class misp_instance:
         self.events = {}
         aux = {event['info']: event for event in self.instance.events()}
         self.updates = []
+        ret = []
         for a in events.values:
             try:
                 campaign = a[0]
@@ -33,8 +34,11 @@ class misp_instance:
                                     {"type": self.parseTypes(a[1]), "value":b, "to_ids": True, "comment":a[2]} for b in a[3]]})
                         e.add_tag(self.getTag())
                     self.events[campaign] = e
-            except:
+                ret.extend(["Added to MISP"]*len(a[3]))
+            except Exception as e:
+                ret.extend([e]*len(a[3]))
                 continue
+        return ret
 
     def getTag(self):
         IOC_CP = self.instance.get_tag(1044)

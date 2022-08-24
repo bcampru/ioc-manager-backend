@@ -1,9 +1,6 @@
-from flask import Flask, render_template, request
 from flask import *
-import requests
 import pandas as pd
 import os
-from pandas import ExcelWriter
 import concurrent.futures
 from app.src import ThreadPool
 from app.src import misp
@@ -12,6 +9,17 @@ import time
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGHT'] = 16*1000*1000*1000
+
+
+def transform(a):
+    a[0] = a[0].replace("-", "") if(type(a[2]) != float) else ""
+    a[1] = a[1].replace("[", "") if(type(a[2]) != float) else ""
+    a[1] = a[1].replace("]", "") if(type(a[2]) != float) else ""
+    a[0] = a[0].lower()
+    a[1] = a[1].lower()
+    a[2] = a[2].replace("[", "") if(type(a[2]) != float) else ""
+    a[2] = a[2].replace("]", "") if(type(a[2]) != float) else ""
+    return a
 
 
 @app.route('/load', methods=['POST'])
@@ -23,6 +31,7 @@ def load():
             with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
 
                 try:
+                    df.apply(transform, axis=1)
                     results = {executor.submit(
                         ThreadPool.add, a, filename, file) for a in df.values}
                     yield "{\"total\": %d}\n" % (len(df.values))
@@ -39,43 +48,35 @@ def load():
                 except:
                     pass
 
-            pagina = pd.DataFrame({'type': llista_type,
-                                   'value': llista_value,
-                                   'Added': llista_bool,
+            pagina = pd.DataFrame({'Type': llista_type,
+                                  'Value': llista_value,
+                                   'Added to Crowdstrike': llista_bool,
+                                   'Crowdstrike Response': llista_comprovacio,
                                    'Description': llista_comprovacio,
                                    'Campaign': llista_campanya
                                    })
 
-            pagina.to_excel("data/resultat.xlsx")
             # Separate Campaign - IOC
+            pagina["Campaign"].fillna("", inplace=True)
+            pagina["Campaign"].replace('', 'Cyberproof_CTI', inplace=True)
             var = pagina["Campaign"].str.split(" - ", expand=True)
             pagina["Campaign"] = var[0].str.strip()
-            pagina["Campaign"].replace('', 'Cyberproof_CTI', inplace=True)
             if(var.shape[1] == 2):
                 pagina["Description"] = var[1].str.strip()
             else:
                 pagina["Description"] = ""
 
-########################################################################################################
-            # TODO
-            # Ficar el Threat level si volem ficar de moment algun score
-########################################################################################################
-
-            pagina = pagina[pagina.value != '']
-            # IMPLEMENTATION TO MISP
-            # Delete non CrowStrike IOCs
-            # pagina.drop(pagina[pagina['Added'] ==
-            #            "No"].index, inplace=True)
-
-            # Transpose & delete innecessary columns
             pagina["Description"].fillna('', inplace=True)
-            pagina = pagina.groupby(['Campaign', 'type', 'Description'])[
-                'value'].apply(list).reset_index(name='events')
+            excel = pagina
+            pagina = pagina[pagina.Value != '']
+            pagina = pagina.groupby(['Campaign', 'Type', 'Description'])[
+                'Value'].apply(list).reset_index(name='events')
 
             mispM = misp.misp_instance(
                 os.getenv("misp_url"), os.getenv("misp_secret"))
-            mispM.setEvents(pagina)
+            excel["MISP"] = mispM.setEvents(pagina)
             mispM.push()
+            excel.to_excel("data/resultat.xlsx")
 
             file.close()
             yield "{\"finished\": \"IOCs Loaded!!\"}\n"
@@ -103,6 +104,7 @@ def load():
 def elimina():
     def gen(df):
         with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
+            df.apply(transform, axis=1)
             results = {executor.submit(
                 ThreadPool.delete_concurrent, a) for a in df.values}
             yield "{\"total\": %d}\n" % (len(df.values))
@@ -135,6 +137,7 @@ def actualitza():
         file = open("data/resultat_hash.txt", "w")
         with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
             try:
+                df.apply(transform, axis=1)
                 results = {executor.submit(
                     ThreadPool.update_concurrent, a, filename, file, action) for a in df.values}
                 yield "{\"total\": %d}\n" % (len(df.values))
@@ -177,13 +180,13 @@ def actualitza():
 @app.route('/getExcel', methods=['GET', 'POST'])
 def download_excel():
     path = app.root_path + "//data//resultat.xlsx"
-    return send_file(path, as_attachment=True)
+    return send_file(path, as_attachment=True, cache_timeout=0)
 
 
 @app.route('/getText', methods=['GET', 'POST'])
 def download_text():
     path = app.root_path + "//data//resultat_hash.txt"
-    return send_file(path, as_attachment=True)
+    return send_file(path, as_attachment=True, cache_timeout=0)
 
 
 @app.route("/addIocTemplate")

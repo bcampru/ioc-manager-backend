@@ -6,19 +6,11 @@ import re
 
 def add(a, filename, file):
     try:
-        # Conversations
-        a[0] = a[0].replace("-", "") if(type(a[2]) != float) else ""
-        a[1] = a[1].replace("[", "") if(type(a[2]) != float) else ""
-        a[1] = a[1].replace("]", "") if(type(a[2]) != float) else ""
-        a[0] = a[0].lower()
-        a[1] = a[1].lower()
-        a[2] = a[2].replace("[", "") if(type(a[2]) != float) else ""
-        a[2] = a[2].replace("]", "") if(type(a[2]) != float) else ""
 
         iocs = {"sha256": "sha256", "md5": "md5", "domain": "domain", "ipv4": "ipv4", "ipv6": "ipv6",
                 "url": "url", "ip address": "ipv4", "ipv4 address": "ipv4", "ipv6 address": "ipv6", "ip": "ipv4"}
 
-        if(a[0] in iocs):
+        if(a[0].lower() in iocs):
             # Comprovar que existeix alguna IP
             ipv4 = re.findall(r'[0-9]+(?:\.[0-9]+){3}', a[1])
             if(len(ipv4) > 0):
@@ -35,9 +27,9 @@ def add(a, filename, file):
             if(int(result["status_code"]) >= 400):
                 llista_bool = "No"
                 try:
-                    llista_comprovacio = result["body"]["resources"][0]["message"]
+                    llista_comprovacio = result["body"]["errors"][0]["message"]
                 except:
-                    llista_comprovacio = "falla " + result
+                    llista_comprovacio = "falla " + result["status_code"]
             else:
                 file.write(a[0] + " " + a[1] + " " +
                            diccionario["name"] + os.linesep)
@@ -54,19 +46,11 @@ def add(a, filename, file):
 
 def update_concurrent(a, filename, file, action):
     try:
-        # Conversations
-        a[0] = a[0].replace("-", "") if(type(a[2]) != float) else ""
-        a[1] = a[1].replace("[", "") if(type(a[2]) != float) else ""
-        a[1] = a[1].replace("]", "") if(type(a[2]) != float) else ""
-        a[0] = a[0].lower()
-        a[1] = a[1].lower()
-        a[2] = a[2].replace("[", "") if(type(a[2]) != float) else ""
-        a[2] = a[2].replace("]", "") if(type(a[2]) != float) else ""
 
         iocs = {"sha256": "sha256", "md5": "md5", "domain": "domain", "ipv4": "ipv4", "ipv6": "ipv6", "url": [
             "ipv4", "domain"], "ip address": "ipv4", "ipv4 address": "ipv4", "ipv6 address": "ipv6", "ip": "ipv4"}
 
-        if(a[0] in iocs):
+        if(a[0].lower() in iocs):
             # Comprovar que existeix alguna IP
             ipv4 = re.findall(r'[0-9]+(?:\.[0-9]+){3}', a[1])
             if(len(ipv4) > 0):
@@ -100,7 +84,4 @@ def update_concurrent(a, filename, file, action):
 
 
 def delete_concurrent(a):
-    a[0] = a[0].replace("-", "")
-    a[1] = a[1].replace("[", "")
-    a[1] = a[1].replace("]", "")
     crowdstrike.delete_crowd(a[1])

@@ -180,13 +180,13 @@ def actualitza():
 @app.route('/getExcel', methods=['GET', 'POST'])
 def download_excel():
     path = app.root_path + "//data//resultat.xlsx"
-    return send_file(path, as_attachment=True, cache_timeout=0)
+    return send_file(path, as_attachment=True)
 
 
 @app.route('/getText', methods=['GET', 'POST'])
 def download_text():
     path = app.root_path + "//data//resultat_hash.txt"
-    return send_file(path, as_attachment=True, cache_timeout=0)
+    return send_file(path, as_attachment=True)
 
 
 @app.route("/addIocTemplate")

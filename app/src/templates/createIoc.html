@@ -18,7 +18,8 @@
 
 			<div class="container" id="content">
 				<input id="input" type="file" name="file" class="upload" />
-				<br />
+				<br /><br />
+				<input type="checkbox" name="CCOO" id="CCOO">Send IOCs to CCOO</input>
 				<br /><br />
 				<button id="start" class="boto">Load IOCs</button>
 			</div>
@@ -28,16 +29,17 @@
 				const btnEl = document.getElementById("start");
 				const fileInput = document.getElementById("input");
 				var file = "";
-
+				
 				fileInput.onchange = () => {
 					file = fileInput.files[0];
 				};
-
+				
 				btnEl.addEventListener("click", function (e) {
 					if (file == "") {
 						alert("Please select a file");
 						return;
 					}
+					let CCOO = document.getElementById("CCOO").checked;
 					let prevBufferEnd = 0;
 					let total = 0;
 					let div = document.getElementById("content");
@@ -96,6 +98,7 @@
 					});
 					var formData = new FormData();
 					formData.append("file", file);
+					formData.append("ccoo", CCOO);
 					xhr.open("post", "/load");
 					xhr.send(formData);
 				});

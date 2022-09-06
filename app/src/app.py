@@ -25,7 +25,7 @@ def transform(a):
 
 @app.route('/load', methods=['POST'])
 def load():
-    def gen(df, filename):
+    def gen(df, filename, ccoo):
         try:
 
             file = open("data/resultat_hash.txt", "w")
@@ -75,7 +75,7 @@ def load():
 
             mispM = misp.misp_instance(
                 os.getenv("misp_url"), os.getenv("misp_secret"))
-            excel["MISP"] = mispM.setEvents(pagina)
+            excel["MISP"] = mispM.setEvents(pagina, ccoo)
             mispM.push()
             excel.to_excel("data/resultat.xlsx")
 
@@ -98,7 +98,7 @@ def load():
                     df = pd.read_excel(csv)
             except Exception as e:
                 return Response("{\"error\": \"Invalid file format\"}\n")
-            return Response(gen(df, csv.filename))
+            return Response(gen(df, csv.filename, request.form['ccoo'] == 'true'))
 
 
 @app.route('/delete', methods=['POST'])

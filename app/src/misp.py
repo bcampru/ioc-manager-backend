@@ -21,17 +21,17 @@ class misp_instance:
                 campaign = "CCOO" if ccoo else a[0]
                 if campaign in self.events.keys():
                     [self.events[campaign].add_attribute(type=self.parseTypes(
-                        a[1]), value=b, to_ids=ccoo, comment=a[2]) for b in a[3]]
+                        a[1]), value=b, to_ids=True, comment=a[2]) for b in a[3]]
                 else:
                     e = MISPEvent()
                     if(campaign in aux.keys()):
                         e.from_dict(Event=aux[campaign])
                         [e.add_attribute(type=self.parseTypes(
-                            a[1]), value=b, comment=a[2], to_ids=ccoo) for b in a[3]]
+                            a[1]), value=b, comment=a[2], to_ids=True) for b in a[3]]
                         self.updates.append(campaign)
                     else:
                         e.from_dict(Event={'info': campaign, 'published': False, 'Attribute': [
-                                    {"type": self.parseTypes(a[1]), "value":b, "to_ids": False, "comment":a[2]} for b in a[3]]})
+                                    {"type": self.parseTypes(a[1]), "value":b, "to_ids": True, "comment":a[2]} for b in a[3]]})
                         e.add_tag(self.getTag())
                     self.events[campaign] = e
                 ret.extend(["Added to MISP"]*len(a[3]))

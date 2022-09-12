@@ -55,12 +55,15 @@
 								Delete IOCs
 							</button>
 						</li>
+						<li>
+							<button class="boto" id="logger">IOC Logger</button>
+						</li>
 					</ul>
 				</nav>
 			</div>
 		</header>
 
-		<div id="show"></div>
+		<div id="show" class="ag-theme-alpine-dark"></div>
 
 		<script type="text/javascript">
 			$(document).ready(function () {
@@ -86,6 +89,15 @@
 					$("#show")
 						.hide()
 						.load("/updateIocTemplate", function () {
+							console.log("Load completed!");
+							sendReq();
+						})
+						.fadeIn(1000);
+				});
+				$("#logger").click(function () {
+					$("#show")
+						.hide()
+						.load("/iocLogger", function () {
 							console.log("Load completed!");
 							sendReq();
 						})

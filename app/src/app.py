@@ -4,6 +4,7 @@ import os
 import concurrent.futures
 from app.src import ThreadPool
 from app.src import misp
+from app.src.mispLogger import mispLogger
 import time
 
 
@@ -203,6 +204,32 @@ def delete():
 @app.route("/updateIocTemplate")
 def update():
     return render_template('updateIoc.html')
+
+
+@app.route("/iocLogger", methods=['GET'])
+def logger():
+    return render_template('iocLogger.html')
+
+
+@app.route("/tableVisualizer", methods=['GET'])
+def tableVisualizer():
+    return render_template('tableVisualizer.html')
+
+
+@app.route("/iocLogger", methods=['POST'])
+def postLogger():
+    if request.method == 'POST':
+        os.chdir(app.root_path)
+        logger = mispLogger()
+        logger.insert(request.json)
+
+
+@app.route("/iocLogger/<succeed>", methods=['GET'])
+def getLogger(succeed):
+    if request.method == 'GET':
+        os.chdir(app.root_path)
+        logger = mispLogger()
+        return jsonify(logger.getData(succeed))
 
 
 @app.route("/")

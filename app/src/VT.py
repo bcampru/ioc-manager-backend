@@ -1,6 +1,4 @@
 import requests
-import json
-import ipaddress
 from app.src import converter
 import numpy as np
 

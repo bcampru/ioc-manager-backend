@@ -199,3 +199,5 @@ cython_debug/
 .vscode/launch.json
 app/src/data/*
 !app/src/data/.gitkeep
+
+*.sqlite

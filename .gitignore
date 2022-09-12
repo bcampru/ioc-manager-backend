@@ -201,3 +201,4 @@ app/src/data/*
 !app/src/data/.gitkeep
 
 *.sqlite
+*.log

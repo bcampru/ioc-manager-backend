@@ -198,7 +198,7 @@ cython_debug/
 .vscode/launch.json
 .vscode/launch.json
 app/src/data/*
-!app/src/data/mispLogger/.gitkeep
+!app/src/data/.gitkeep
 
 *.sqlite
 *.log

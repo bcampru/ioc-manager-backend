@@ -9,7 +9,7 @@ class mispLogger:
                             format="%(asctime)s:%(levelname)s:%(message)s")
         try:
             self.con = sl.connect(
-                "data/mispLogger/mispLogger.sqlite", detect_types=sl.PARSE_DECLTYPES | sl.PARSE_COLNAMES)
+                "data/logger.sqlite", detect_types=sl.PARSE_DECLTYPES | sl.PARSE_COLNAMES)
             self.bd = self.con.cursor()
         except:
             logging.error("Error connecting to database")

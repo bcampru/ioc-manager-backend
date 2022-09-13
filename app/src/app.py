@@ -106,7 +106,10 @@ def load():
 def elimina():
     def gen(df):
         with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
+            mispM = misp.misp_instance(
+                os.getenv("misp_url"), os.getenv("misp_secret"))
             df = df.apply(transform, axis=1)
+            mispM.deleteAttributes(df)
             results = {executor.submit(
                 ThreadPool.delete_concurrent, a) for a in df.values}
             yield "{\"total\": %d}\n" % (len(df.values))

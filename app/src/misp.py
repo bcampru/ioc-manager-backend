@@ -62,3 +62,11 @@ class misp_instance:
             event['Event']['timestamp'] = str(
                 int(event['Event']['timestamp'])+1)
             self.instance.update_event(event)
+
+    def deleteAttributes(self, df):
+        for a in df.values:
+            attributes = self.instance.search(
+                'attributes', value=a[1])['Attribute']
+            objects = set([b['object_id'] for b in attributes])
+            for obj in objects:
+                self.instance.delete_object(obj)

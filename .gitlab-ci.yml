@@ -15,7 +15,7 @@ build_prod:
     stage: build
     environment:
         name: production
-        url: http://10.1.1.156:5000/
+        url: http://10.1.1.163:5000/
     script:
         - cp $CLARIANT ./app/src/.env
         - docker login -u "gitlab-ci-token" -p "$CI_BUILD_TOKEN" $CI_REGISTRY
@@ -36,7 +36,7 @@ build_test:
     stage: build
     environment:
         name: pre-production
-        url: http://10.1.1.156:5050/
+        url: http://10.1.1.163:5050/
     script:
         - cp $NECSIA ./app/src/.env
         - docker login -u "gitlab-ci-token" -p "$CI_BUILD_TOKEN" $CI_REGISTRY
@@ -57,7 +57,7 @@ deploy_prod:
     stage: deploy
     environment:
         name: production
-        url: http://10.1.1.156:5000/
+        url: http://10.1.1.163:5000/
     script:
         - docker login -u "gitlab-ci-token" -p "$CI_BUILD_TOKEN" $CI_REGISTRY
         - docker pull $CI_REGISTRY_IMAGE:latest
@@ -78,7 +78,7 @@ deploy_test:
     stage: deploy
     environment:
         name: pre-production
-        url: http://10.1.1.156:5050/
+        url: http://10.1.1.163:5050/
     script:
         - docker login -u "gitlab-ci-token" -p "$CI_BUILD_TOKEN" $CI_REGISTRY
         - docker pull $CI_REGISTRY_IMAGE:test

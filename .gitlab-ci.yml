@@ -62,7 +62,7 @@ deploy_prod:
         - docker login -u "gitlab-ci-token" -p "$CI_BUILD_TOKEN" $CI_REGISTRY
         - docker pull $CI_REGISTRY_IMAGE:latest
         - docker rm --force crowdstrike_production
-        - docker run -d --name crowdstrike_production -p 5000:5000 $CI_REGISTRY_IMAGE
+        - docker run -d --restart=always --name crowdstrike_production -p 5000:5000 $CI_REGISTRY_IMAGE
     only:
         - master
 
@@ -83,6 +83,6 @@ deploy_test:
         - docker login -u "gitlab-ci-token" -p "$CI_BUILD_TOKEN" $CI_REGISTRY
         - docker pull $CI_REGISTRY_IMAGE:test
         - docker rm --force crowdstrike_test
-        - docker run -d --name crowdstrike_test -p 5050:5000 $CI_REGISTRY_IMAGE:test
+        - docker run -d --restart=always --name crowdstrike_test -p 5050:5000 $CI_REGISTRY_IMAGE:test
     only:
         - PRE

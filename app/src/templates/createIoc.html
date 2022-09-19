@@ -12,28 +12,30 @@
 	</head>
 
 	<body>
-		<form class="titol">
+		<div class="titol">
 			<h1>Create the IOCs to Crowd</h1>
 			<br />
 
 			<div class="container" id="content">
 				<input id="input" type="file" name="file" class="upload" />
 				<br /><br />
-				<input type="checkbox" name="CCOO" id="CCOO">Send IOCs to CCOO</input>
+				<input type="checkbox" name="CCOO" id="CCOO" />
+				<label for="CCOO">Send IOCs to CCOO</label>
+
 				<br /><br />
 				<button id="start" class="boto">Load IOCs</button>
 			</div>
-		</form>
+		</div>
 		<script>
 			function sendReq() {
 				const btnEl = document.getElementById("start");
 				const fileInput = document.getElementById("input");
 				var file = "";
-				
+
 				fileInput.onchange = () => {
 					file = fileInput.files[0];
 				};
-				
+
 				btnEl.addEventListener("click", function (e) {
 					if (file == "") {
 						alert("Please select a file");

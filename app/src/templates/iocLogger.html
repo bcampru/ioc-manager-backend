@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+	<head>
+		<meta charset="utf-8" />
+		<title>HTML</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link
+			href="{{ url_for('static', filename='app.css')}}"
+			rel="stylesheet"
+			type="text/css"
+		/>
+		<script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.js"></script>
+	</head>
+
+	<body>
+		<div class="titol">
+			<h1>Check IOC Logs</h1>
+			<br />
+
+			<div class="container" id="content">
+				<select name="action" id="action" required>
+					<option value="0">Events with errors</option>
+					<option value="1">Successful events</option>
+					<option value="2">All events</option>
+				</select>
+				<br /><br />
+				<button id="start" class="boto">Check Logs</button>
+			</div>
+		</div>
+	</body>
+	<script>
+		function sendReq() {
+			const btnEl = document.getElementById("start");
+			var columnDefs = [
+				{ headerName: "Id", field: "attribute_id" },
+				{ headerName: "Succeed", field: "succeed" },
+				{ headerName: "IOC", field: "value" },
+				{ headerName: "Error", field: "error" },
+			];
+			var gridOptions = {};
+
+			btnEl.addEventListener("click", function (e) {
+				let param = document.getElementById("action").value;
+				if (!param || 0 > param > 2) {
+					alert("Please enter a mode");
+					return;
+				}
+
+				let xhr = new XMLHttpRequest();
+				xhr.open("get", "/iocLogger/" + param);
+				xhr.responseType = "json";
+				xhr.send();
+
+				xhr.onload = function () {
+					if (xhr.status != 200) {
+						alert(`Error ${xhr.status}: ${xhr.statusText}`);
+					} else {
+						console.debug(xhr.response);
+						$(document.body)
+							.hide()
+							.load("/tableVisualizer", function () {
+								load(columnDefs, xhr.response);
+							})
+							.fadeIn(1000);
+					}
+				};
+				xhr.onerror = function () {
+					alert("Solicitud fallida");
+				};
+			});
+		}
+	</script>
+</html>

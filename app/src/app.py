@@ -224,7 +224,10 @@ def postLogger():
     if request.method == 'POST':
         os.chdir(app.root_path)
         logger = mispLogger()
-        logger.insert(request.json)
+        if(logger.insert(request.json)):
+            return {}, 200
+        else:
+            return {}, 500
 
 
 @app.route("/iocLogger/<succeed>", methods=['GET'])

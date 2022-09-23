@@ -13,13 +13,13 @@ def get_users():
 def get_user(user_id):
     users = Users.query.all()
     user = list(filter(lambda x: x.id == user_id, users))[0]
-    return {"id": user.id, "username": user.username, "pwd": user.pwd}
+    return {"id": user.id, "username": user.username, "pwd": user.pwd, "name": user.name, "surname": user.surname}
 
 
-def add_user(username, pwd):
-    if username and pwd:
+def add_user(username, pwd, name, surname):
+    if username and pwd and name and surname:
         try:
-            user = Users(username, pwd)
+            user = Users(username, pwd, name, surname)
             user.save()
             return True
         except Exception as e:

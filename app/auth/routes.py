@@ -1,9 +1,10 @@
 from app import jwt
 from app.auth import bp
 from app.auth.helpers import *
-from app.auth.models import Users, InvalidToken
+from app.auth.models import InvalidToken
 from flask import request, jsonify
-from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity, get_jwt, jwt_required
+from flask_jwt_extended import create_access_token, unset_jwt_cookies, get_jwt_identity, get_jwt, jwt_required, set_access_cookies
+from datetime import datetime, timezone, timedelta
 
 
 @jwt.token_in_blocklist_loader
@@ -13,6 +14,22 @@ def check_if_blacklisted_token(data, decrypted):
     """
     jti = decrypted['jti']
     return InvalidToken.is_invalid(jti)
+
+
+@bp.after_request
+def refresh_expiring_jwts(response):
+    try:
+        exp_timestamp = get_jwt()["exp"]
+        now = datetime.now(timezone.utc)
+        target_timestamp = datetime.timestamp(
+            now + timedelta(minutes=30))
+        if target_timestamp > exp_timestamp:
+            access_token = create_access_token(identity=get_jwt_identity())
+            set_access_cookies(response, access_token)
+        return response
+    except (RuntimeError, KeyError):
+        # Case where there is not a valid JWT. Just return the original response
+        return response
 
 
 @bp.route("/login", methods=["POST"])
@@ -25,8 +42,9 @@ def login():
                 pwd, x["pwd"]), get_users()))
             if len(user) == 1:
                 token = create_access_token(identity=user[0]["id"])
-                refresh_token = create_refresh_token(identity=user[0]["id"])
-                return jsonify({"token": token, "refreshToken": refresh_token})
+                response = jsonify({"msg": "login successful"})
+                set_access_cookies(response, token)
+                return response
             else:
                 return jsonify({"error": "Invalid credentials"})
         else:
@@ -38,29 +56,17 @@ def login():
 @bp.route("/register", methods=["POST"])
 def register():
     try:
-        pwd = encrypt_pwd(request.json['pwd'])
         username = request.json['username']
+        pwd = encrypt_pwd(request.json['pwd'])
+        name = request.json['name']
+        surname = request.json['surname']
         users = get_users()
         if len(list(filter(lambda x: x["username"] == username, users))) == 1:
             return jsonify({"error": "Invalid Form"})
-        add_user(username, pwd)
+        add_user(username, pwd, name, surname)
         return jsonify({"success": True})
     except Exception as e:
         return jsonify({"error": str(e)})
-
-
-@bp.route("/checkiftokenexpire", methods=["POST"])
-@jwt_required()
-def check_if_token_expire():
-    return jsonify({"success": True})
-
-
-@bp.route("/refreshtoken", methods=["POST"])
-@jwt_required(refresh=True)
-def refresh():
-    identity = get_jwt_identity()
-    token = create_access_token(identity=identity)
-    return jsonify({"token": token})
 
 
 @bp.route("/getcurrentuser")
@@ -81,7 +87,9 @@ def logout():
     try:
         invalid_token = InvalidToken(jti=jti)
         invalid_token.save()
-        return jsonify({"success": True})
+        response = jsonify({"msg": "logout successful"})
+        unset_jwt_cookies(response)
+        return response
     except Exception as e:
         print(e)
         return jsonify({"error": str(e)})

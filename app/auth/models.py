@@ -5,17 +5,21 @@ class Users(db.Model):
     id = db.Column('user_id', db.Integer, primary_key=True)
     username = db.Column(db.String(24))
     pwd = db.Column(db.String(64))
+    name = db.Column(db.String(24))
+    surname = db.Column(db.String(24))
 
     def save(self):
         db.session.add(self)
         db.session.commit()
 
-    def __init__(self, username, pwd):
+    def __init__(self, username, pwd, name, surname):
         self.username = username
         self.pwd = pwd
+        self.name = name
+        self.surname = surname
 
     def __repr__(self):
-        return "<User: Username - {}; password - {};>".format(self.username, self.pwd)
+        return "<User: Username - {}; Password - {}; Name - {}; Surname - {};>".format(self.username, self.pwd, self.name, self.surname)
 
 
 class InvalidToken(db.Model):

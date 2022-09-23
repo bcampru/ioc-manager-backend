@@ -9,7 +9,7 @@ class mispLogger:
                             format="%(asctime)s:%(levelname)s:%(message)s")
         try:
             self.con = sl.connect(
-                "data/logger.sqlite", detect_types=sl.PARSE_DECLTYPES | sl.PARSE_COLNAMES)
+                "data/app_database.sqlite", detect_types=sl.PARSE_DECLTYPES | sl.PARSE_COLNAMES)
             self.bd = self.con.cursor()
         except:
             logging.error("Error connecting to database")
@@ -19,7 +19,7 @@ class mispLogger:
     def create_bd(self):
         with self.con:
             self.bd.execute("""
-                    CREATE TABLE IF NOT EXISTS DATA (
+                    CREATE TABLE IF NOT EXISTS logs (
                         id INTEGER PRIMARY KEY,
                         attribute_id TEXT,
                         succeed BOOL,
@@ -35,7 +35,7 @@ class mispLogger:
             try:
                 columns = ', '.join(data.keys())
                 placeholders = ', '.join('?' * len(data))
-                sql = 'INSERT INTO DATA ({}) VALUES ({})'.format(
+                sql = 'INSERT INTO logs ({}) VALUES ({})'.format(
                     columns, placeholders)
                 values = [int(x) if isinstance(x, bool) or isinstance(x, int)
                           else str(x) for x in data.values()]
@@ -52,10 +52,10 @@ class mispLogger:
             try:
                 if succeed == '2':
                     self.bd.execute(
-                        'SELECT * FROM DATA')
+                        'SELECT * FROM logs')
                 else:
                     self.bd.execute(
-                        'SELECT * FROM DATA WHERE succeed = ?', succeed)
+                        'SELECT * FROM logs WHERE succeed = ?', succeed)
                 result = self.bd.fetchall()
                 res = [{'attribute_id': ast.literal_eval(a[1]), 'succeed':a[2]
                         == 1, 'value':ast.literal_eval(a[3])['value'], 'error':ast.literal_eval(a[4])} for a in result]

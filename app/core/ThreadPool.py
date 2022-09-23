@@ -1,5 +1,5 @@
-from app.src import VT
-from app.src import crowdstrike
+from app.core import VT
+from app.core import crowdstrike
 import os
 import re
 

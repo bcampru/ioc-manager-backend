@@ -13,16 +13,19 @@
 
 	<body>
 		<div class="titol">
-			<h1>Delete IOCs from Crowd</h1>
+			<h1>Create the IOCs to Crowd</h1>
 			<br />
-			<div id="content" class="container">
+
+			<div class="container" id="content">
 				<input id="input" type="file" name="file" class="upload" />
-				<br />
 				<br /><br />
-				<button id="start" class="boto">Delete IOCs</button>
+				<input type="checkbox" name="CCOO" id="CCOO" />
+				<label for="CCOO">Send IOCs to CCOO</label>
+
+				<br /><br />
+				<button id="start" class="boto">Load IOCs</button>
 			</div>
 		</div>
-
 		<script>
 			function sendReq() {
 				const btnEl = document.getElementById("start");
@@ -38,6 +41,7 @@
 						alert("Please select a file");
 						return;
 					}
+					let CCOO = document.getElementById("CCOO").checked;
 					let prevBufferEnd = 0;
 					let total = 0;
 					let div = document.getElementById("content");
@@ -71,10 +75,20 @@
 								elem.innerHTML = percent.toFixed(1) + "%";
 							} else if (respData["finished"]) {
 								var div = document.getElementById("content");
-								var h3 = document.createElement("h3");
-								h3.innerHTML = "Finished deleting IOCs!";
+								var excel = document.createElement("a");
+								excel.href = "/api/getExcel";
+								excel.type = "button";
+								excel.innerHTML = "Download Excel";
+								excel.classList.add("boto");
+								var text = document.createElement("a");
+								text.href = "/api/getText";
+								text.type = "button";
+								text.innerHTML = "Download Text";
+								text.classList.add("boto");
 								div.innerHTML = "";
-								div.appendChild(h3);
+								div.appendChild(excel);
+								div.appendChild(document.createElement("br"));
+								div.appendChild(text);
 							} else if (respData["error"]) {
 								alert(respData.error);
 							}
@@ -86,7 +100,8 @@
 					});
 					var formData = new FormData();
 					formData.append("file", file);
-					xhr.open("post", "/delete");
+					formData.append("ccoo", CCOO);
+					xhr.open("post", "/api/load");
 					xhr.send(formData);
 				});
 			}

@@ -1,15 +1,10 @@
-from flask import *
+from flask_jwt_extended import jwt_required
+import concurrent.futures
+from app.core import bp, ThreadPool, misp
 import pandas as pd
 import os
-import concurrent.futures
-from app.src import ThreadPool
-from app.src import misp
-from app.src.mispLogger import mispLogger
 import time
-
-
-app = Flask(__name__)
-app.config['MAX_CONTENT_LENGHT'] = 16*1000*1000*1000
+from flask import request, Response, send_file, current_app, render_template
 
 
 def transform(a):
@@ -24,7 +19,8 @@ def transform(a):
     return a
 
 
-@app.route('/load', methods=['POST'])
+@bp.route('/load', methods=['POST'])
+# @jwt_required()
 def load():
     def gen(df, filename, ccoo):
         try:
@@ -87,7 +83,7 @@ def load():
             yield "{\"error\": \"%s\"}\n" % (e)
 
     if request.method == 'POST':
-        os.chdir(app.root_path)
+        os.chdir(current_app.root_path)
         if 'file' not in request.files:
             return Response("{\"error\": \"You need to provide a file!\"}\n")
         else:
@@ -102,7 +98,8 @@ def load():
             return Response(gen(df, csv.filename, request.form['ccoo'] == 'true'))
 
 
-@app.route('/delete', methods=['POST'])
+@bp.route('/delete', methods=['POST'])
+# @jwt_required()
 def elimina():
     def gen(df):
         with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
@@ -136,7 +133,8 @@ def elimina():
                 return Response("{\"error\": \"Invalid file format\"}\n")
 
 
-@app.route('/update', methods=['POST'])
+@bp.route('/update', methods=['POST'])
+# @jwt_required()
 def actualitza():
     def gen(df, filename, action):
         file = open("data/resultat_hash.txt", "w")
@@ -167,7 +165,7 @@ def actualitza():
         yield "{\"finished\": \"IOCs Updated!!\"}\n"
 
     if request.method == 'POST':
-        os.chdir(app.root_path)
+        os.chdir(current_app.root_path)
         if 'file' not in request.files:
             return Response("{\"error\": \"You need to provide a file!\"}\n")
         else:
@@ -182,67 +180,15 @@ def actualitza():
                 return Response("{\"error\": \"Invalid file format\"}\n")
 
 
-@app.route('/getExcel', methods=['GET', 'POST'])
+@bp.route('/getExcel', methods=['GET', 'POST'])
+# @jwt_required()
 def download_excel():
-    path = app.root_path + "//data//resultat.xlsx"
+    path = current_app.root_path + "//data//resultat.xlsx"
     return send_file(path, as_attachment=True)
 
 
-@app.route('/getText', methods=['GET', 'POST'])
+@bp.route('/getText', methods=['GET', 'POST'])
+# @jwt_required()
 def download_text():
-    path = app.root_path + "//data//resultat_hash.txt"
+    path = current_app.root_path + "//data//resultat_hash.txt"
     return send_file(path, as_attachment=True)
-
-
-@app.route("/addIocTemplate")
-def create():
-    return render_template('createIoc.html')
-
-
-@app.route("/deleteIocTemplate")
-def delete():
-    return render_template('deleteIoc.html')
-
-
-@app.route("/updateIocTemplate")
-def update():
-    return render_template('updateIoc.html')
-
-
-@app.route("/iocLogger", methods=['GET'])
-def logger():
-    return render_template('iocLogger.html')
-
-
-@app.route("/tableVisualizer", methods=['GET'])
-def tableVisualizer():
-    return render_template('tableVisualizer.html')
-
-
-@app.route("/iocLogger", methods=['POST'])
-def postLogger():
-    if request.method == 'POST':
-        os.chdir(app.root_path)
-        logger = mispLogger()
-        if(logger.insert(request.json)):
-            return {}, 200
-        else:
-            return {}, 500
-
-
-@app.route("/iocLogger/<succeed>", methods=['GET'])
-def getLogger(succeed):
-    if request.method == 'GET':
-        os.chdir(app.root_path)
-        logger = mispLogger()
-        return jsonify(logger.getData(succeed))
-
-
-@app.route("/")
-def main():
-    os.chdir(app.root_path)
-    return render_template('index.html', var=os.getenv("logo"))
-
-
-if __name__ == "__main__":
-    app.run()

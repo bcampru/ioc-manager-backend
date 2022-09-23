@@ -1,5 +1,5 @@
 import requests
-from app.src import converter
+from app.core import converter
 import numpy as np
 
 

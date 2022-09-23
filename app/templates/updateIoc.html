@@ -2,7 +2,7 @@
 <html lang="es">
 	<head>
 		<meta charset="utf-8" />
-		<title>HTML</title>
+		<title>Update IOCs</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link
 			href="{{ url_for('static', filename='app.css')}}"
@@ -13,19 +13,20 @@
 
 	<body>
 		<div class="titol">
-			<h1>Create the IOCs to Crowd</h1>
+			<h1>Update with the following actions the IOCs to Crowd</h1>
 			<br />
-
-			<div class="container" id="content">
+			<div id="content" class="container">
+				<select name="action" id="action" required>
+					<option value="detect">Detect</option>
+					<option value="prevent">Prevent</option>
+				</select>
+				<br /><br />
 				<input id="input" type="file" name="file" class="upload" />
 				<br /><br />
-				<input type="checkbox" name="CCOO" id="CCOO" />
-				<label for="CCOO">Send IOCs to CCOO</label>
-
-				<br /><br />
-				<button id="start" class="boto">Load IOCs</button>
+				<button id="start" class="boto">Update IOCs</button>
 			</div>
 		</div>
+
 		<script>
 			function sendReq() {
 				const btnEl = document.getElementById("start");
@@ -37,22 +38,6 @@
 				};
 
 				btnEl.addEventListener("click", function (e) {
-					if (file == "") {
-						alert("Please select a file");
-						return;
-					}
-					let CCOO = document.getElementById("CCOO").checked;
-					let prevBufferEnd = 0;
-					let total = 0;
-					let div = document.getElementById("content");
-					div.innerHTML = "";
-					let myProgress = document.createElement("div");
-					let myBar = document.createElement("div");
-					myProgress.id = "myProgress";
-					myBar.id = "myBar";
-					myProgress.appendChild(myBar);
-					div.appendChild(myProgress);
-
 					const xhr = new XMLHttpRequest();
 
 					xhr.addEventListener("progress", function (e) {
@@ -76,12 +61,12 @@
 							} else if (respData["finished"]) {
 								var div = document.getElementById("content");
 								var excel = document.createElement("a");
-								excel.href = "/getExcel";
+								excel.href = "/api/getExcel";
 								excel.type = "button";
 								excel.innerHTML = "Download Excel";
 								excel.classList.add("boto");
 								var text = document.createElement("a");
-								text.href = "/getText";
+								text.href = "/api/getText";
 								text.type = "button";
 								text.innerHTML = "Download Text";
 								text.classList.add("boto");
@@ -99,9 +84,29 @@
 						btnEl.disabled = false;
 					});
 					var formData = new FormData();
+
+					if (file == "") {
+						alert("Please select a file");
+						return;
+					}
+
 					formData.append("file", file);
-					formData.append("ccoo", CCOO);
-					xhr.open("post", "/load");
+					formData.append(
+						"action",
+						document.getElementById("action").value
+					);
+					let prevBufferEnd = 0;
+					let total = 0;
+					let div = document.getElementById("content");
+					div.innerHTML = "";
+					let myProgress = document.createElement("div");
+					let myBar = document.createElement("div");
+					myProgress.id = "myProgress";
+					myBar.id = "myBar";
+					myProgress.appendChild(myBar);
+					div.appendChild(myProgress);
+
+					xhr.open("post", "/api/update");
 					xhr.send(formData);
 				});
 			}

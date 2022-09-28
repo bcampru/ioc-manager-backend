@@ -3,8 +3,7 @@ from app.auth import bp
 from app.auth.helpers import *
 from app.auth.models import InvalidToken
 from flask import request, jsonify
-from flask_jwt_extended import create_access_token, unset_jwt_cookies, get_jwt_identity, get_jwt, jwt_required, set_access_cookies
-from datetime import datetime, timezone, timedelta
+from flask_jwt_extended import create_access_token, get_jwt_identity, get_jwt, jwt_required
 
 
 @jwt.token_in_blocklist_loader
@@ -16,34 +15,18 @@ def check_if_blacklisted_token(data, decrypted):
     return InvalidToken.is_invalid(jti)
 
 
-@bp.after_request
-def refresh_expiring_jwts(response):
-    try:
-        exp_timestamp = get_jwt()["exp"]
-        now = datetime.now(timezone.utc)
-        target_timestamp = datetime.timestamp(
-            now + timedelta(minutes=30))
-        if target_timestamp > exp_timestamp:
-            access_token = create_access_token(identity=get_jwt_identity())
-            set_access_cookies(response, access_token)
-        return response
-    except (RuntimeError, KeyError):
-        # Case where there is not a valid JWT. Just return the original response
-        return response
-
-
 @bp.route("/login", methods=["POST"])
 def login():
     try:
-        username = request.json["username"]
-        pwd = request.json["pwd"]
-        if username and pwd:
-            user = list(filter(lambda x: x["username"] == username and check_pwd(
-                pwd, x["pwd"]), get_users()))
+        email = request.json["email"]
+        password = request.json["password"]
+        if email and password:
+            user = list(filter(lambda x: x["email"] == email and check_pwd(
+                password, x["password"]), get_users()))
             if len(user) == 1:
                 token = create_access_token(identity=user[0]["id"])
-                response = jsonify({"msg": "login successful"})
-                set_access_cookies(response, token)
+                response = jsonify(
+                    {"msg": "login successful", "access_token": token})
                 return response
             else:
                 return jsonify({"error": "Invalid credentials"})
@@ -56,14 +39,14 @@ def login():
 @bp.route("/register", methods=["POST"])
 def register():
     try:
-        username = request.json['username']
-        pwd = encrypt_pwd(request.json['pwd'])
+        email = request.json['email']
+        password = encrypt_pwd(request.json['password'])
         name = request.json['name']
         surname = request.json['surname']
         users = get_users()
-        if len(list(filter(lambda x: x["username"] == username, users))) == 1:
-            return jsonify({"error": "Invalid Form"})
-        add_user(username, pwd, name, surname)
+        if len(list(filter(lambda x: x["email"] == email, users))) >= 1:
+            return jsonify({"error": "Email already exists!"})
+        add_user(email, password, name, surname)
         return jsonify({"success": True})
     except Exception as e:
         return jsonify({"error": str(e)})
@@ -88,7 +71,6 @@ def logout():
         invalid_token = InvalidToken(jti=jti)
         invalid_token.save()
         response = jsonify({"msg": "logout successful"})
-        unset_jwt_cookies(response)
         return response
     except Exception as e:
         print(e)

@@ -3,8 +3,8 @@ from app import db
 
 class Users(db.Model):
     id = db.Column('user_id', db.Integer, primary_key=True)
-    username = db.Column(db.String(24))
-    pwd = db.Column(db.String(64))
+    email = db.Column(db.String(24))
+    password = db.Column(db.String(64))
     name = db.Column(db.String(24))
     surname = db.Column(db.String(24))
 
@@ -12,14 +12,14 @@ class Users(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    def __init__(self, username, pwd, name, surname):
-        self.username = username
-        self.pwd = pwd
+    def __init__(self, email, password, name, surname):
+        self.email = email
+        self.password = password
         self.name = name
         self.surname = surname
 
     def __repr__(self):
-        return "<User: Username - {}; Password - {}; Name - {}; Surname - {};>".format(self.username, self.pwd, self.name, self.surname)
+        return "<User: email - {}; Password - {}; Name - {}; Surname - {};>".format(self.email, self.password, self.name, self.surname)
 
 
 class InvalidToken(db.Model):

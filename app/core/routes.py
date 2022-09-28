@@ -4,7 +4,9 @@ from app.core import bp, ThreadPool, misp
 import pandas as pd
 import os
 import time
-from flask import request, Response, send_file, current_app, render_template
+from flask import request, Response, send_file, current_app
+import json
+import re
 
 
 def transform(a):
@@ -19,8 +21,29 @@ def transform(a):
     return a
 
 
+def regex(iocs):
+    match_d = {"ipv4": ["^(ip;)?(\d+\.\d+\.\d+\.\d+)$"],
+               "ipv6": ["^(ip;)?([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])"],
+               "domain": ["^(domain;)?((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z])"],
+               "md5": ["^(hash;)?([a-f0-9]{32})$"],
+               "sha1": ["^(hash;)?([a-f0-9]{40})$"],
+               "sha256": ["^(hash;)?([a-f0-9]{64})$",
+                          "^(filename\|sha256;).*\|([a-f0-9]{64})$"],
+               "url": [".*(url;)?((http|https)://.*)$"],
+               "email": ["^(email;)?([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)$"],
+               }
+    for k in match_d.keys():
+        for r in match_d[k]:
+            r = re.compile(r)
+            res = list(filter(r.match, iocs))
+            if res:
+                iocs = [item for item in iocs if item not in res]
+                for r in res:
+                    yield [k, r]
+
+
 @bp.route('/load', methods=['POST'])
-# @jwt_required()
+@jwt_required()
 def load():
     def gen(df, filename, ccoo):
         try:
@@ -29,7 +52,9 @@ def load():
             with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
 
                 try:
-                    df = df.apply(transform, axis=1)
+                    if filename != 'Manual':
+                        df = df.apply(transform, axis=1)
+                    #[ThreadPool.add(a, filename, file) for a in df.values]
                     results = {executor.submit(
                         ThreadPool.add, a, filename, file) for a in df.values}
                     yield "{\"total\": %d}\n" % (len(df.values))
@@ -84,9 +109,7 @@ def load():
 
     if request.method == 'POST':
         os.chdir(current_app.root_path)
-        if 'file' not in request.files:
-            return Response("{\"error\": \"You need to provide a file!\"}\n")
-        else:
+        if 'file' in request.files:
             try:
                 csv = request.files['file']
                 if 'csv' in csv.filename:
@@ -95,42 +118,72 @@ def load():
                     df = pd.read_excel(csv)
             except Exception as e:
                 return Response("{\"error\": \"Invalid file format\"}\n")
-            return Response(gen(df, csv.filename, request.form['ccoo'] == 'true'))
+            return Response(gen(df, csv.filename, json.loads(request.form['clients'])['CCOO'] == 'true'))
+        elif 'iocs' in request.form.keys():
+            try:
+                iocs = request.form['iocs'].replace(" ", "").splitlines()
+                iocs = [ioc for ioc in regex(iocs)]
+                if iocs == []:
+                    raise Exception()
+                df = pd.DataFrame(iocs, columns=['Type', 'Value'])
+                df['Campaign'] = ''
+            except Exception as e:
+                return Response("{\"error\": \"You need to send valid IOCs\"}\n")
+            return Response(gen(df, "Manual", json.loads(request.form['clients'])['CCOO'] == 'true'))
+
+        else:
+            return Response("{\"error\": \"You need to provide a file!\"}\n")
 
 
 @bp.route('/delete', methods=['POST'])
 # @jwt_required()
 def elimina():
-    def gen(df):
-        with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
-            mispM = misp.misp_instance(
-                os.getenv("misp_url"), os.getenv("misp_secret"))
-            df = df.apply(transform, axis=1)
-            mispM.deleteAttributes(df)
-            results = {executor.submit(
-                ThreadPool.delete_concurrent, a) for a in df.values}
-            yield "{\"total\": %d}\n" % (len(df.values))
-            time.sleep(1)
-            aux = []
-            for result in concurrent.futures.as_completed(results):
-                aux.append(result.result())
-                yield "{\"progress\": %d}\n" % (len(aux))
-            time.sleep(1)
-            yield "{\"finished\": \"IOCs Deleted!!\"}\n"
-
+    def gen(df, mode):
+        try:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
+                mispM = misp.misp_instance(
+                    os.getenv("misp_url"), os.getenv("misp_secret"))
+                if mode != "manual":
+                    df = df.apply(transform, axis=1)
+                mispM.deleteAttributes(df)
+                results = {executor.submit(
+                    ThreadPool.delete_concurrent, a) for a in df.values}
+                yield "{\"total\": %d}\n" % (len(df.values))
+                time.sleep(1)
+                aux = []
+                for result in concurrent.futures.as_completed(results):
+                    aux.append(result.result())
+                    yield "{\"progress\": %d}\n" % (len(aux))
+                time.sleep(1)
+                yield "{\"finished\": \"IOCs Deleted!!\"}\n"
+        except Exception as e:
+            yield "{\"error\": \"%s\"}\n" % (e)
     if request.method == 'POST':
-        if 'file' not in request.files:
-            return Response("{\"error\": \"You need to provide a file!\"}\n")
-        else:
+        if 'file' in request.files:
             try:
                 csv = request.files['file']
                 if 'csv' in csv.filename:
                     df = pd.read_csv(csv)
                 else:
                     df = pd.read_excel(csv)
-                return Response(gen(df))
+                return Response(gen(df, "file"))
             except:
                 return Response("{\"error\": \"Invalid file format\"}\n")
+
+        elif 'iocs' in request.form.keys():
+            try:
+                iocs = request.form['iocs'].replace(" ", "").splitlines()
+                iocs = [ioc for ioc in regex(iocs)]
+                if iocs == []:
+                    raise Exception()
+                df = pd.DataFrame(iocs, columns=['Type', 'Value'])
+                df['Campaign'] = ''
+            except Exception as e:
+                return Response("{\"error\": \"You need to send valid IOCs\"}\n")
+            return Response(gen(df, "manual"))
+
+        else:
+            return Response("{\"error\": \"You need to provide a file!\"}\n")
 
 
 @bp.route('/update', methods=['POST'])
@@ -140,7 +193,8 @@ def actualitza():
         file = open("data/resultat_hash.txt", "w")
         with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
             try:
-                df = df.apply(transform, axis=1)
+                if filename != "manual":
+                    df = df.apply(transform, axis=1)
                 results = {executor.submit(
                     ThreadPool.update_concurrent, a, filename, file, action) for a in df.values}
                 yield "{\"total\": %d}\n" % (len(df.values))
@@ -166,9 +220,7 @@ def actualitza():
 
     if request.method == 'POST':
         os.chdir(current_app.root_path)
-        if 'file' not in request.files:
-            return Response("{\"error\": \"You need to provide a file!\"}\n")
-        else:
+        if 'file' in request.files:
             try:
                 csv = request.files['file']
                 if 'csv' in csv.filename:
@@ -178,6 +230,20 @@ def actualitza():
                 return Response(gen(df, csv.filename, request.form['action']))
             except:
                 return Response("{\"error\": \"Invalid file format\"}\n")
+        elif 'iocs' in request.form.keys():
+            try:
+                iocs = request.form['iocs'].replace(" ", "").splitlines()
+                iocs = [ioc for ioc in regex(iocs)]
+                if iocs == []:
+                    raise Exception()
+                df = pd.DataFrame(iocs, columns=['Type', 'Value'])
+                df['Campaign'] = ''
+            except Exception as e:
+                return Response("{\"error\": \"You need to send valid IOCs\"}\n")
+            return Response(gen(df, "manual", request.form['action']))
+
+        else:
+            return Response("{\"error\": \"You need to provide a file!\"}\n")
 
 
 @bp.route('/getExcel', methods=['GET', 'POST'])

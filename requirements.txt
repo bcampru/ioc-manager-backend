@@ -12,3 +12,4 @@ gevent
 flask-sqlalchemy
 flask-jwt-extended
 bcrypt
+flask-cors

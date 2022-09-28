@@ -7,19 +7,19 @@ from hashlib import sha256
 
 def get_users():
     users = Users.query.all()
-    return [{"id": i.id, "username": i.username, "pwd": i.pwd} for i in users]
+    return [{"id": i.id, "email": i.email, "password": i.password} for i in users]
 
 
 def get_user(user_id):
     users = Users.query.all()
     user = list(filter(lambda x: x.id == user_id, users))[0]
-    return {"id": user.id, "username": user.username, "pwd": user.pwd, "name": user.name, "surname": user.surname}
+    return {"id": user.id, "email": user.email, "password": user.password, "name": user.name, "surname": user.surname}
 
 
-def add_user(username, pwd, name, surname):
-    if username and pwd and name and surname:
+def add_user(email, password, name, surname):
+    if email and password and name and surname:
         try:
-            user = Users(username, pwd, name, surname)
+            user = Users(email, password, name, surname)
             user.save()
             return True
         except Exception as e:
@@ -43,8 +43,8 @@ def remove_user(user_id):
         return False
 
 
-def encrypt_pwd(pwd):
-    return hashpw(b64encode(sha256(pwd.encode()).digest()), gensalt()).decode()
+def encrypt_pwd(password):
+    return hashpw(b64encode(sha256(password.encode()).digest()), gensalt()).decode()
 
 
 def check_pwd(x, y):

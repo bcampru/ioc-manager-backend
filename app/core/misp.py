@@ -96,6 +96,10 @@ class misp_instance:
         for a in df.values:
             attributes = self.instance.search(
                 'attributes', value=a[1])['Attribute']
+            att = set([b['id'] for b in attributes if b['object_id']
+                      == '0' and b['to_ids'] == True])
             objects = set([b['object_id'] for b in attributes])
             for obj in objects:
                 self.instance.delete_object(obj)
+            for a in att:
+                self.instance.delete_attribute(a)

@@ -1,10 +1,13 @@
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 import concurrent.futures
+
+from sqlalchemy import null
 from app.core import bp, ThreadPool, misp
 import pandas as pd
 import os
 import time
-from flask import request, Response, send_file, current_app
+from flask import jsonify, request, Response, send_file, current_app
+from app.auth.helpers import get_user
 import json
 import re
 
@@ -45,7 +48,7 @@ def regex(iocs):
 @bp.route('/load', methods=['POST'])
 @jwt_required()
 def load():
-    def gen(df, filename, ccoo):
+    def gen(df, filename, clients, expiration=null):
         try:
 
             file = open("data/resultat_hash.txt", "w")
@@ -90,6 +93,8 @@ def load():
                 pagina["Description"] = ""
 
             pagina["Description"].fillna('', inplace=True)
+            pagina["Description"] = pagina["Description"] + \
+                f" Uploaded by: {user['name']} {user['surname']}"
             excel = pagina
             pagina = pagina[pagina.Value != '']
             pagina = pagina.groupby(['Campaign', 'Type', 'Description'])[
@@ -97,7 +102,7 @@ def load():
 
             mispM = misp.misp_instance(
                 os.getenv("misp_url"), os.getenv("misp_secret"))
-            excel["MISP"] = mispM.setEvents(pagina, ccoo)
+            excel["MISP"] = mispM.setEvents(pagina, clients, expiration)
             mispM.push()
             excel.to_excel("data/resultat.xlsx")
 
@@ -109,6 +114,8 @@ def load():
 
     if request.method == 'POST':
         os.chdir(current_app.root_path)
+        user = get_user(get_jwt_identity())
+
         if 'file' in request.files:
             try:
                 csv = request.files['file']
@@ -118,7 +125,7 @@ def load():
                     df = pd.read_excel(csv)
             except Exception as e:
                 return Response("{\"error\": \"Invalid file format\"}\n")
-            return Response(gen(df, csv.filename, json.loads(request.form['clients'])['CCOO'] == 'true'))
+            return Response(gen(df, csv.filename, json.loads(request.form['clients'])))
         elif 'iocs' in request.form.keys():
             try:
                 iocs = request.form['iocs'].replace(" ", "").splitlines()
@@ -129,7 +136,7 @@ def load():
                 df['Campaign'] = ''
             except Exception as e:
                 return Response("{\"error\": \"You need to send valid IOCs\"}\n")
-            return Response(gen(df, "Manual", json.loads(request.form['clients'])['CCOO'] == 'true'))
+            return Response(gen(df, "Manual", json.loads(request.form['clients']), request.form['expiration']))
 
         else:
             return Response("{\"error\": \"You need to provide a file!\"}\n")
@@ -258,3 +265,11 @@ def download_excel():
 def download_text():
     path = current_app.root_path + "//data//resultat_hash.txt"
     return send_file(path, as_attachment=True)
+
+
+@bp.route('/getClients', methods=['GET', 'POST'])
+# @jwt_required()
+def get_clients():
+    mispM = misp.misp_instance(
+        os.getenv("misp_url"), os.getenv("misp_secret"))
+    return jsonify(mispM.getClients())

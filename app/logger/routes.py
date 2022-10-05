@@ -1,25 +1,32 @@
 from app.logger import bp
 from app.logger.mispLogger import mispLogger
-from flask import render_template, request, current_app, jsonify
+from app.core.misp import misp_instance
+from flask import request, current_app, jsonify
 import os
 
 
-@bp.route("/iocLogger", methods=['POST'])
+@bp.route("/iocLogger/load", methods=['POST'])
 # @jwt_required()
-def postLogger():
-    if request.method == 'POST':
-        os.chdir(current_app.root_path)
-        logger = mispLogger()
-        if(logger.insert(request.json)):
-            return {}, 200
-        else:
-            return {}, 500
+def addMispLog():
+    os.chdir(current_app.root_path)
+    logger = mispLogger()
+    if(logger.insert(request.json)):
+        return {}, 200
+    else:
+        return {}, 500
 
 
-@bp.route("/iocLogger/<succeed>", methods=['GET'])
+@bp.route("/iocLogger/misp", methods=['GET'])
 # @jwt_required()
-def getLogger(succeed):
-    if request.method == 'GET':
-        os.chdir(current_app.root_path)
-        logger = mispLogger()
-        return jsonify(logger.getData(succeed))
+def getMispLog():
+    os.chdir(current_app.root_path)
+    logger = mispLogger()
+    return jsonify(logger.getData())
+
+
+@bp.route("/iocLogger/ioc", methods=['GET'])
+# @jwt_required()
+def getIocLog():
+    misp = misp_instance(
+        os.getenv("misp_url"), os.getenv("misp_secret"))
+    return jsonify(misp.getLogs())

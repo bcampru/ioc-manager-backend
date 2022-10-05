@@ -47,15 +47,11 @@ class mispLogger:
                 return False
         return True
 
-    def getData(self, succeed):
+    def getData(self):
         with self.con:
             try:
-                if succeed == '2':
-                    self.bd.execute(
-                        'SELECT * FROM logs')
-                else:
-                    self.bd.execute(
-                        'SELECT * FROM logs WHERE succeed = ?', succeed)
+                self.bd.execute(
+                    'SELECT * FROM logs')
                 result = self.bd.fetchall()
                 res = [{'attribute_id': ast.literal_eval(a[1]), 'succeed':a[2]
                         == 1, 'value':ast.literal_eval(a[3])['value'], 'error':ast.literal_eval(a[4])} for a in result]

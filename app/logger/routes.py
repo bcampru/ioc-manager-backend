@@ -6,7 +6,6 @@ import os
 
 
 @bp.route("/iocLogger/load", methods=['POST'])
-# @jwt_required()
 def addMispLog():
     os.chdir(current_app.root_path)
     logger = mispLogger()
@@ -17,7 +16,6 @@ def addMispLog():
 
 
 @bp.route("/iocLogger/misp", methods=['GET'])
-# @jwt_required()
 def getMispLog():
     os.chdir(current_app.root_path)
     logger = mispLogger()
@@ -25,7 +23,6 @@ def getMispLog():
 
 
 @bp.route("/iocLogger/ioc", methods=['GET'])
-# @jwt_required()
 def getIocLog():
     misp = misp_instance(
         os.getenv("misp_url"), os.getenv("misp_secret"))

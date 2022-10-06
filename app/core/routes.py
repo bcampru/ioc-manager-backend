@@ -143,7 +143,7 @@ def load():
 
 
 @bp.route('/delete', methods=['POST'])
-# @jwt_required()
+@jwt_required()
 def elimina():
     def gen(df, mode):
         try:
@@ -194,7 +194,7 @@ def elimina():
 
 
 @bp.route('/update', methods=['POST'])
-# @jwt_required()
+@jwt_required()
 def actualitza():
     def gen(df, filename, action):
         file = open("data/resultat_hash.txt", "w")
@@ -254,21 +254,18 @@ def actualitza():
 
 
 @bp.route('/getExcel', methods=['GET', 'POST'])
-# @jwt_required()
 def download_excel():
     path = current_app.root_path + "//data//resultat.xlsx"
     return send_file(path, as_attachment=True)
 
 
 @bp.route('/getText', methods=['GET', 'POST'])
-# @jwt_required()
 def download_text():
     path = current_app.root_path + "//data//resultat_hash.txt"
     return send_file(path, as_attachment=True)
 
 
 @bp.route('/getClients', methods=['GET', 'POST'])
-# @jwt_required()
 def get_clients():
     mispM = misp.misp_instance(
         os.getenv("misp_url"), os.getenv("misp_secret"))

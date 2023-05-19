@@ -9,3 +9,7 @@ futures==2.2.0
 pymisp
 pyintelowl
 gevent
+flask-sqlalchemy
+flask-jwt-extended
+bcrypt
+flask-cors

@@ -2,7 +2,7 @@
 <html lang="es">
 	<head>
 		<meta charset="utf-8" />
-		<title>Update IOCs</title>
+		<title>HTML</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link
 			href="{{ url_for('static', filename='app.css')}}"
@@ -13,17 +13,13 @@
 
 	<body>
 		<div class="titol">
-			<h1>Update with the following actions the IOCs to Crowd</h1>
+			<h1>Delete IOCs from Crowd</h1>
 			<br />
 			<div id="content" class="container">
-				<select name="action" id="action" required>
-					<option value="detect">Detect</option>
-					<option value="prevent">Prevent</option>
-				</select>
-				<br /><br />
 				<input id="input" type="file" name="file" class="upload" />
+				<br />
 				<br /><br />
-				<button id="start" class="boto">Update IOCs</button>
+				<button id="start" class="boto">Delete IOCs</button>
 			</div>
 		</div>
 
@@ -38,6 +34,21 @@
 				};
 
 				btnEl.addEventListener("click", function (e) {
+					if (file == "") {
+						alert("Please select a file");
+						return;
+					}
+					let prevBufferEnd = 0;
+					let total = 0;
+					let div = document.getElementById("content");
+					div.innerHTML = "";
+					let myProgress = document.createElement("div");
+					let myBar = document.createElement("div");
+					myProgress.id = "myProgress";
+					myBar.id = "myBar";
+					myProgress.appendChild(myBar);
+					div.appendChild(myProgress);
+
 					const xhr = new XMLHttpRequest();
 
 					xhr.addEventListener("progress", function (e) {
@@ -60,20 +71,10 @@
 								elem.innerHTML = percent.toFixed(1) + "%";
 							} else if (respData["finished"]) {
 								var div = document.getElementById("content");
-								var excel = document.createElement("a");
-								excel.href = "/getExcel";
-								excel.type = "button";
-								excel.innerHTML = "Download Excel";
-								excel.classList.add("boto");
-								var text = document.createElement("a");
-								text.href = "/getText";
-								text.type = "button";
-								text.innerHTML = "Download Text";
-								text.classList.add("boto");
+								var h3 = document.createElement("h3");
+								h3.innerHTML = "Finished deleting IOCs!";
 								div.innerHTML = "";
-								div.appendChild(excel);
-								div.appendChild(document.createElement("br"));
-								div.appendChild(text);
+								div.appendChild(h3);
 							} else if (respData["error"]) {
 								alert(respData.error);
 							}
@@ -84,29 +85,8 @@
 						btnEl.disabled = false;
 					});
 					var formData = new FormData();
-
-					if (file == "") {
-						alert("Please select a file");
-						return;
-					}
-
 					formData.append("file", file);
-					formData.append(
-						"action",
-						document.getElementById("action").value
-					);
-					let prevBufferEnd = 0;
-					let total = 0;
-					let div = document.getElementById("content");
-					div.innerHTML = "";
-					let myProgress = document.createElement("div");
-					let myBar = document.createElement("div");
-					myProgress.id = "myProgress";
-					myBar.id = "myBar";
-					myProgress.appendChild(myBar);
-					div.appendChild(myProgress);
-
-					xhr.open("post", "/update");
+					xhr.open("post", "/api/delete");
 					xhr.send(formData);
 				});
 			}
